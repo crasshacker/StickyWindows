@@ -59,8 +59,11 @@ namespace StickyWindows.WPF {
                 // imposta
                 _window.Left += pStart.X;
                 _window.Top += pStart.Y;
-                _window.Width = widthHeightPointConverted.X;
-                _window.Height = widthHeightPointConverted.Y;
+                // Clamp to non-negative values to avoid exceptions that could otherwise occur, for example when
+                // resizing a window by dragging the right edge leftward quickly past the left edge of the window,
+                // causing the width value to become negative.
+                _window.Width = Math.Max(0, widthHeightPointConverted.X);
+                _window.Height = Math.Max(0, widthHeightPointConverted.Y);
             }
         }
 

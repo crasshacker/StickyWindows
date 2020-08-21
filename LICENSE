@@ -1,3 +1,14 @@
+
+License Preamble
+
+This software is covered by the MIT License.  The original license is below,
+and assigns copyright to Thomas Freudenberg.  Updates to the original code
+have since been made to retarget the software to .NET Core and to implement
+a few minor enhancements.  The copyright for these updates is:
+
+Copyright (c) 2020 Scott Southard
+
+
 MIT License
 
 Copyright (c) 2017 Thomas Freudenberg

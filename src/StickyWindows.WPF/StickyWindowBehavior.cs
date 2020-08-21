@@ -1,5 +1,6 @@
 ﻿using System.Windows;
-using System.Windows.Interactivity;
+// using System.Windows.Interactivity;
+using Microsoft.Xaml.Behaviors;
 
 namespace StickyWindows.WPF {
     public class StickyWindowBehavior : Behavior<Window> {

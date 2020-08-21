@@ -16,62 +16,72 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Linq;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace StickyWindows {
     /// <summary>
-    /// A windows that Sticks to other windows of the same type when moved or resized.
-    /// You get a nice way of organizing multiple top-level windows.
-    /// Quite similar with WinAmp 2.x style of sticking the windows
+    /// Makes a window sticky, so that other sticky windows can be attached to it.
     /// </summary>
+    /// <remarks>
+    /// Associating a StickyWindow instance with a window makes that window sticky with respect to other
+    /// StickyWindow-associated windows.  A sticky window can either serve as an anchor for other sticky
+    /// windows to stick to, or as a window that will stick to an anchor when it is moved near to it.
+    /// Anchor windows can optionally be specified as StickyAnchor windows, in which case any windows that
+    /// are stuck to the anchor window will move along with the anchor window as it is moved.
+    /// </remarks>
     public class StickyWindow : NativeWindow {
-        /// <summary>
-        /// Global List of registered StickyWindows
-        /// </summary>
-        private static readonly List<BaseFormAdapter> _globalStickyWindows = new List<BaseFormAdapter>();
-
         [Flags]
         private enum ResizeDir {
-            Top = 2,
+            Top    = 2,
             Bottom = 4,
-            Left = 8,
-            Right = 16
+            Left   = 8,
+            Right  = 16
         }
+
+        /// <summary>
+        /// This is the set of all registered windows, including both anchors and sticky windows.
+        /// </summary>
+        private static readonly HashSet<StickyWindow> _stickyWindows = new HashSet<StickyWindow>();
+
+        // Adapter for the window we're associated with
+        private readonly BaseFormAdapter _originalForm;
 
         // Internal Message Processor
         private delegate bool ProcessMessage(ref Message m);
-
         private ProcessMessage _messageProcessor;
 
         // Messages processors based on type
-        private readonly ProcessMessage _defaultMessageProcessor;
-
-        private readonly ProcessMessage _moveMessageProcessor;
-        private readonly ProcessMessage _resizeMessageProcessor;
-
-        // Move stuff
-        private bool _movingForm;
-
-        private Point _formOffsetPoint; // calculated offset rect to be added !! (min distances in all directions!!)
-        private Point _offsetPoint; // primary offset
-
-        // Resize stuff
-        private bool _resizingForm;
-
-        private ResizeDir _resizeDirection;
-        private Rectangle _formOffsetRect; // calculated rect to fix the size
-        private Point _mousePoint; // mouse position
+        private readonly ProcessMessage  _defaultMessageProcessor;
+        private readonly ProcessMessage  _resizeMessageProcessor;
+        private readonly ProcessMessage  _moveMessageProcessor;
 
         // General Stuff
-        private readonly BaseFormAdapter _originalForm; // the form
+        private Rectangle    _formRect;         // form bounds
+        private Rectangle    _formOriginalRect; // bounds before last operation started
+        private StickyWindow _anchor;           // the anchor window we're stuck to, if any
 
-        private Rectangle _formRect; // form bounds
-        private Rectangle _formOriginalRect; // bounds before last operation started
+        // Move stuff
+        private Point        _formOffsetPoint;  // calculated offset rect to be added
+        private Point        _offsetPoint;      // primary offset
 
-        // public properties
-        private static int _stickGap = 20; // distance to stick
+        // Resize stuff
+        private ResizeDir    _resizeDirection;  // direction(s) of current resize operation
+        private Rectangle    _formOffsetRect;   // calculated rect to fix the size
+
+        // Public properties
+
+        public StickyWindowType WindowType { get; }
+
+        /// <summary>
+        /// The strength of the "pull", or "stickiness", of the window, expressed as the number of pixels distant
+        /// the window's edge must be positioned in order to attach or detach from the edge of another window.
+        /// The default value is 15;
+        /// </summary>
+        public int StickGravity { get; set; } = 15;
 
         /// <summary>
         /// Allow the form to stick while resizing
@@ -98,67 +108,69 @@ namespace StickyWindows {
         public bool StickToOther { get; set; }
 
         /// <summary>
-        /// Register a new form as an external reference form.
-        /// All Sticky windows will try to stick to the external references
-        /// Use this to register your MainFrame so the child windows try to stick to it, when your MainFrame is NOT a sticky window
+        /// Register a sticky window.
         /// </summary>
-        /// <param name="frmExternal">External window that will be used as reference</param>
-        public static void RegisterExternalReferenceForm(BaseFormAdapter frmExternal) {
-            _globalStickyWindows.Add(frmExternal);
+        /// <param name="stickyWindow">The sticky window to register</param>
+        public static void Register(StickyWindow stickyWindow) {
+            _stickyWindows.Add(stickyWindow);
         }
 
         /// <summary>
-        /// Register a new form as an external reference form.
-        /// All Sticky windows will try to stick to the external references
-        /// Use this to register your MainFrame so the child windows try to stick to it, when your MainFrame is NOT a sticky window
+        /// Unregister a sticky window.
         /// </summary>
-        /// <param name="frmExternal">External window that will be used as reference</param>
-        public static void RegisterExternalReferenceForm(Form frmExternal) {
-            RegisterExternalReferenceForm(new WinFormAdapter(frmExternal));
-        }
-
-        /// <summary>
-        /// Unregister a form from the external references.
-        /// <see cref="RegisterExternalReferenceForm(BaseFormAdapter)"/>
-        /// </summary>
-        /// <param name="frmExternal">External window that will was used as reference</param>
-        public static void UnregisterExternalReferenceForm(BaseFormAdapter frmExternal) {
-            _globalStickyWindows.Remove(frmExternal);
+        /// <param name="stickyWindow">The sticky window to unregister</param>
+        public static void Unregister(StickyWindow stickyWindow) {
+            _stickyWindows.Remove(stickyWindow);
         }
 
         /// <summary>
         /// Make the form Sticky
-        /// </summary>
+        /// </summaryThe Great Reversal: How America Gave Up on Free Market>
         /// <param name="form">Form to be made sticky</param>
         public StickyWindow(Form form)
-            : this(new WinFormAdapter(form)) {}
+            : this(new WinFormAdapter(form), StickyWindowType.Sticky) {}
+
+        /// <summary>
+        /// Make the form Sticky
+        /// </summaryThe Great Reversal: How America Gave Up on Free Market>
+        /// <param name="form">Form to be made sticky</param>
+        /// <param name="windowType">The type of sticky window</param>
+        public StickyWindow(Form form, StickyWindowType windowType)
+            : this(new WinFormAdapter(form), windowType) {}
 
         /// <summary>
         /// Make the form Sticky
         /// </summary>
         /// <param name="form">Form to be made sticky</param>
-        public StickyWindow(BaseFormAdapter form) {
-            _resizingForm = false;
-            _movingForm = false;
+        public StickyWindow(BaseFormAdapter form)
+            : this(form, StickyWindowType.Sticky) {
+        }
+
+        /// <summary>
+        /// Make the form Sticky
+        /// </summary>
+        /// <param name="form">Form to be made sticky</param>
+        /// <param name="windowType">The type of sticky window</param>
+        public StickyWindow(BaseFormAdapter form, StickyWindowType windowType) {
+            WindowType = windowType;
 
             _originalForm = form;
 
-            _formRect = Rectangle.Empty;
+            _formRect       = Rectangle.Empty;
             _formOffsetRect = Rectangle.Empty;
 
             _formOffsetPoint = Point.Empty;
-            _offsetPoint = Point.Empty;
-            _mousePoint = Point.Empty;
+            _offsetPoint     = Point.Empty;
 
-            StickOnMove = true;
+            StickOnMove   = true;
             StickOnResize = true;
             StickToScreen = true;
-            StickToOther = true;
+            StickToOther  = true;
 
             _defaultMessageProcessor = DefaultMsgProcessor;
-            _moveMessageProcessor = MoveMsgProcessor;
-            _resizeMessageProcessor = ResizeMsgProcessor;
-            _messageProcessor = _defaultMessageProcessor;
+            _resizeMessageProcessor  = ResizeMsgProcessor;
+            _moveMessageProcessor    = MoveMsgProcessor;
+            _messageProcessor        = _defaultMessageProcessor;
 
             AssignHandle(_originalForm.Handle);
         }
@@ -166,9 +178,9 @@ namespace StickyWindows {
         [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.Demand, Name = "FullTrust")]
         protected override void OnHandleChange() {
             if ((int)Handle != 0) {
-                _globalStickyWindows.Add(_originalForm);
+                _stickyWindows.Add(this);
             } else {
-                _globalStickyWindows.Remove(_originalForm);
+                _stickyWindows.Remove(this);
             }
         }
 
@@ -188,11 +200,10 @@ namespace StickyWindows {
             switch (m.Msg) {
                 case Win32.WM.WM_NCLBUTTONDOWN: {
                     _originalForm.Activate();
-                    _mousePoint.X = (short)Win32.Bit.LoWord((int)m.LParam);
-                    _mousePoint.Y = (short)Win32.Bit.HiWord((int)m.LParam);
-                    if (OnNonClientLeftButtonDown((int)m.WParam, _mousePoint)) {
-                        //m.Result = new IntPtr ( (resizingForm || movingForm) ? 1 : 0 );
-                        m.Result = (IntPtr)((_resizingForm || _movingForm) ? 1 : 0);
+                    Point mousePoint = new Point((short)Win32.Bit.LoWord((int)m.LParam),
+                                                 (short)Win32.Bit.HiWord((int)m.LParam));
+                    if (OnNonClientLeftButtonDown((int)m.WParam, mousePoint)) {
+                        m.Result = IntPtr.Zero;
                         return true;
                     }
                     break;
@@ -276,9 +287,9 @@ namespace StickyWindows {
                     break;
                 }
                 case Win32.WM.WM_MOUSEMOVE: {
-                    _mousePoint.X = (short)Win32.Bit.LoWord((int)m.LParam);
-                    _mousePoint.Y = (short)Win32.Bit.HiWord((int)m.LParam);
-                    Resize(_mousePoint);
+                    Point mousePoint = new Point((short)Win32.Bit.LoWord((int)m.LParam),
+                                                 (short)Win32.Bit.HiWord((int)m.LParam));
+                    Resize(mousePoint);
                     break;
                 }
                 case Win32.WM.WM_KEYDOWN: {
@@ -328,8 +339,8 @@ namespace StickyWindows {
 
             // CARE !!! We use "Width" and "Height" as Bottom & Right!! (C++ style)
             //formOffsetRect = new Rectangle ( stickGap + 1, stickGap + 1, 0, 0 );
-            _formOffsetRect.X = _stickGap + 1;
-            _formOffsetRect.Y = _stickGap + 1;
+            _formOffsetRect.X = StickGravity + 1;
+            _formOffsetRect.Y = StickGravity + 1;
             _formOffsetRect.Height = 0;
             _formOffsetRect.Width = 0;
 
@@ -339,24 +350,24 @@ namespace StickyWindows {
 
             if (StickToOther) {
                 // now try to stick to other forms
-                foreach (var sw in _globalStickyWindows) {
-                    if (sw != _originalForm) {
-                        Resize_Stick(sw.Bounds, true);
+                foreach (var sw in _stickyWindows) {
+                    if (sw != this) {
+                        Resize_Stick(sw._originalForm.Bounds, true);
                     }
                 }
             }
 
             // Fix (clear) the values that were not updated to stick
-            if (_formOffsetRect.X == _stickGap + 1) {
+            if (_formOffsetRect.X == StickGravity + 1) {
                 _formOffsetRect.X = 0;
             }
-            if (_formOffsetRect.Width == _stickGap + 1) {
+            if (_formOffsetRect.Width == StickGravity + 1) {
                 _formOffsetRect.Width = 0;
             }
-            if (_formOffsetRect.Y == _stickGap + 1) {
+            if (_formOffsetRect.Y == StickGravity + 1) {
                 _formOffsetRect.Y = 0;
             }
-            if (_formOffsetRect.Height == _stickGap + 1) {
+            if (_formOffsetRect.Height == StickGravity + 1) {
                 _formOffsetRect.Height = 0;
             }
 
@@ -403,7 +414,7 @@ namespace StickyWindows {
         }
 
         private void Resize_Stick(Rectangle toRect, bool bInsideStick) {
-            if (_formRect.Right >= (toRect.Left - _stickGap) && _formRect.Left <= (toRect.Right + _stickGap)) {
+            if (_formRect.Right >= (toRect.Left - StickGravity) && _formRect.Left <= (toRect.Right + StickGravity)) {
                 if ((_resizeDirection & ResizeDir.Top) == ResizeDir.Top) {
                     if (Math.Abs(_formRect.Top - toRect.Bottom) <= Math.Abs(_formOffsetRect.Top) && bInsideStick) {
                         _formOffsetRect.Y = _formRect.Top - toRect.Bottom; // snap top to bottom
@@ -421,7 +432,7 @@ namespace StickyWindows {
                 }
             }
 
-            if (_formRect.Bottom >= (toRect.Top - _stickGap) && _formRect.Top <= (toRect.Bottom + _stickGap)) {
+            if (_formRect.Bottom >= (toRect.Top - StickGravity) && _formRect.Top <= (toRect.Bottom + StickGravity)) {
                 if ((_resizeDirection & ResizeDir.Right) == ResizeDir.Right) {
                     if (Math.Abs(_formRect.Right - toRect.Left) <= Math.Abs(_formOffsetRect.Right) && bInsideStick) {
                         _formOffsetRect.Width = toRect.Left - _formRect.Right; // Stick right to left
@@ -466,9 +477,9 @@ namespace StickyWindows {
                     break;
                 }
                 case Win32.WM.WM_MOUSEMOVE: {
-                    _mousePoint.X = (short)Win32.Bit.LoWord((int)m.LParam);
-                    _mousePoint.Y = (short)Win32.Bit.HiWord((int)m.LParam);
-                    Move(_mousePoint);
+                    Point mousePoint = new Point((short)Win32.Bit.LoWord((int)m.LParam),
+                                                 (short)Win32.Bit.HiWord((int)m.LParam));
+                    Move(mousePoint);
                     break;
                 }
                 case Win32.WM.WM_KEYDOWN: {
@@ -502,26 +513,51 @@ namespace StickyWindows {
             // to detect the new position acording to different bounds
             _formRect.Location = p; // this is the new positon of the form
 
-            _formOffsetPoint.X = _stickGap + 1; // (more than) maximum gaps
-            _formOffsetPoint.Y = _stickGap + 1;
+            _formOffsetPoint.X = StickGravity + 1; // (more than) maximum gaps
+            _formOffsetPoint.Y = StickGravity + 1;
 
-            if (StickToScreen) {
-                Move_Stick(activeScr.WorkingArea, false);
+            if (WindowType == StickyWindowType.StickyAnchor) {
+                var distanceX = _formRect.Location.X - _originalForm.Bounds.X;
+                var distanceY = _formRect.Location.Y - _originalForm.Bounds.Y;
+
+                foreach (var sw in _stickyWindows) {
+                    // Move any sticky windows anchored to this window along with it.
+                    if (sw.WindowType == StickyWindowType.Sticky && sw._anchor == this)
+                    {
+                        var bounds = sw._originalForm.Bounds;
+                        bounds.X += distanceX;
+                        bounds.Y += distanceY;
+                        sw._originalForm.Bounds = bounds;
+                    }
+                }
             }
+            else if (WindowType == StickyWindowType.Anchor) {
+                // We're an anchor window that's moving, so detach all sticky windows.
+                foreach (var stickyWindow in _stickyWindows.Where(sw => sw._anchor == this))
+                {
+                    stickyWindow._anchor = null;
+                }
+            }
+            else {
+                if (StickToScreen) {
+                    Move_Stick(activeScr.WorkingArea, false);
+                }
 
-            // Now try to snap to other windows
-            if (StickToOther) {
-                foreach (var sw in _globalStickyWindows) {
-                    if (sw != _originalForm) {
-                        Move_Stick(sw.Bounds, true);
+                if (StickToOther) {
+                    foreach (var sw in _stickyWindows) {
+                        if (sw.WindowType == StickyWindowType.StickyAnchor
+                         || sw.WindowType == StickyWindowType.Anchor)
+                        {
+                            _anchor = Move_Stick(sw._originalForm.Bounds, true) ? sw : null;
+                        }
                     }
                 }
             }
 
-            if (_formOffsetPoint.X == _stickGap + 1) {
+            if (_formOffsetPoint.X == StickGravity + 1) {
                 _formOffsetPoint.X = 0;
             }
-            if (_formOffsetPoint.Y == _stickGap + 1) {
+            if (_formOffsetPoint.Y == StickGravity + 1) {
                 _formOffsetPoint.Y = 0;
             }
 
@@ -535,39 +571,47 @@ namespace StickyWindows {
         /// </summary>
         /// <param name="toRect">Rect to try to snap to</param>
         /// <param name="bInsideStick">Allow snapping on the inside (eg: window to screen)</param>
-        private void Move_Stick(Rectangle toRect, bool bInsideStick) {
+        private bool Move_Stick(Rectangle toRect, bool bInsideStick) {
+            bool stuck = false;
+
             // compare distance from toRect to formRect
             // and then with the found distances, compare the most closed position
-            if (_formRect.Bottom >= (toRect.Top - _stickGap) && _formRect.Top <= (toRect.Bottom + _stickGap)) {
+            if (_formRect.Bottom >= (toRect.Top - StickGravity) && _formRect.Top <= (toRect.Bottom + StickGravity)) {
                 if (bInsideStick) {
                     if ((Math.Abs(_formRect.Left - toRect.Right) <= Math.Abs(_formOffsetPoint.X))) {
                         // left 2 right
                         _formOffsetPoint.X = toRect.Right - _formRect.Left;
+                        stuck = true;
                     }
                     if ((Math.Abs(_formRect.Left + _formRect.Width - toRect.Left) <= Math.Abs(_formOffsetPoint.X))) {
                         // right 2 left
                         _formOffsetPoint.X = toRect.Left - _formRect.Width - _formRect.Left;
+                        stuck = true;
                     }
                 }
 
                 if (Math.Abs(_formRect.Left - toRect.Left) <= Math.Abs(_formOffsetPoint.X)) {
                     // snap left 2 left
                     _formOffsetPoint.X = toRect.Left - _formRect.Left;
+                    stuck = true;
                 }
                 if (Math.Abs(_formRect.Left + _formRect.Width - toRect.Left - toRect.Width) <= Math.Abs(_formOffsetPoint.X)) {
                     // snap right 2 right
                     _formOffsetPoint.X = toRect.Left + toRect.Width - _formRect.Width - _formRect.Left;
+                    stuck = true;
                 }
             }
-            if (_formRect.Right >= (toRect.Left - _stickGap) && _formRect.Left <= (toRect.Right + _stickGap)) {
+            if (_formRect.Right >= (toRect.Left - StickGravity) && _formRect.Left <= (toRect.Right + StickGravity)) {
                 if (bInsideStick) {
                     if (Math.Abs(_formRect.Top - toRect.Bottom) <= Math.Abs(_formOffsetPoint.Y)) {
                         // Stick Top to Bottom
                         _formOffsetPoint.Y = toRect.Bottom - _formRect.Top;
+                        stuck = true;
                     }
                     if (Math.Abs(_formRect.Top + _formRect.Height - toRect.Top) <= Math.Abs(_formOffsetPoint.Y)) {
                         // snap Bottom to Top
                         _formOffsetPoint.Y = toRect.Top - _formRect.Height - _formRect.Top;
+                        stuck = true;
                     }
                 }
 
@@ -575,12 +619,16 @@ namespace StickyWindows {
                 if (Math.Abs(_formRect.Top - toRect.Top) <= Math.Abs(_formOffsetPoint.Y)) {
                     // top 2 top
                     _formOffsetPoint.Y = toRect.Top - _formRect.Top;
+                    stuck = true;
                 }
                 if (Math.Abs(_formRect.Top + _formRect.Height - toRect.Top - toRect.Height) <= Math.Abs(_formOffsetPoint.Y)) {
                     // bottom 2 bottom
                     _formOffsetPoint.Y = toRect.Top + toRect.Height - _formRect.Height - _formRect.Top;
+                    stuck = true;
                 }
             }
+
+            return stuck;
         }
 
         private static int NormalizeInside(int iP1, int iM1, int iM2) {
@@ -595,8 +643,6 @@ namespace StickyWindows {
 
         private void Cancel() {
             _originalForm.Capture = false;
-            _movingForm = false;
-            _resizingForm = false;
             _messageProcessor = _defaultMessageProcessor;
         }
     }

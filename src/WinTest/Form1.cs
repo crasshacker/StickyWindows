@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using StickyWindows;
 
 namespace WinTest {
     /// <summary>
@@ -24,7 +25,7 @@ namespace WinTest {
             // TODO: Add any constructor code after InitializeComponent call
             //
 
-            StickyWindows.StickyWindow.RegisterExternalReferenceForm(this);
+            StickyWindow.Register(new StickyWindow(this, StickyWindowType.StickyAnchor));
         }
 
         /// <summary>

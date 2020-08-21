@@ -13,7 +13,7 @@ namespace WpfTest {
         }
 
         private void window1Loaded(object sender, RoutedEventArgs e) {
-            this.RegisterExternalReferenceForm();
+            StickyWindow.Register(this.CreateStickyWindow(StickyWindowType.StickyAnchor));
         }
 
 

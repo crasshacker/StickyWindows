@@ -1,112 +1,44 @@
+
 # StickyWindows
 
-This library helps creating window applications where the windows can both stick to
-screen borders and to each other.
+**Note:** This is a fork of this [StickyWindows GitHub repo](https://github.com/thoemmi/StickyWindows), which I've
+retargeted to .NET Core 3.x and improved in a few ways:
 
-The code originates from the Codeproject article
-[Sticky Windows - How to make your (top-level) forms to stick one to the other or to the screen](https://www.codeproject.com/Articles/6045/Sticky-Windows-How-to-make-your-top-level-forms-to)
-by Corneliu Tusnea. He never published a NuGet package, so I asked for his permission
-to both create a repository at GiutHub and publish it as a NuGet package.
+1. Resizing a WPF window in certain ways, for example by dragging the right edge of the window leftward past the
+window's left edge very quickly, would cause the code to calculate and then (mis-)use a negative window width,
+resulting in an exception being thrown (possibly leading to an application crash).  This issue has been resolved.
 
-## Build status and NuGet packages
+2. A new GetBorderThickness extension method for the WPF Window class returns the thickness of the left, top,
+right, and bottom window borders, expressed in device-independent pixels.
 
-|                   | Stable                                                         | Pre-release                                              |
-|-------------------|----------------------------------------------------------------|----------------------------------------------------------|
-| AppVeyor          | [![Build status][appveyor-master-badge]][appveyor-master-link] | [![Build status][appveyor-dev-badge]][appveyor-dev-link] |
-| StickyWindows     | [![NuGet][nuget-master-badge]][nuget-master-link]              | [![NuGet][nuget-dev-badge]][nuget-dev-link]              |
-| StickyWindows.Wpf | [![NuGet][nuget-master-wpf-badge]][nuget-master-wpf-link]      | [![NuGet][nuget-dev-wpf-badge]][nuget-dev-wpf-link]      |
+3. The RegisterExternalForm methods have been removed, and a StickyWindowType parameter has been added to the
+StickyWindow constructor.  All windows that serve as either anchors to which sticky windows will stick, or as
+sticky windows themselves, are imbued with their stickiness attributes by constructing a StickyWindow instance
+of the appropriate type and associating it with the actual form or window.
 
-[appveyor-master-badge]: https://ci.appveyor.com/api/projects/status/ynjy63xrlvrrmseg/branch/master?svg=true
-[appveyor-master-link]:  https://ci.appveyor.com/project/thoemmi/stickywindows/branch/master
-[appveyor-dev-badge]:    https://ci.appveyor.com/api/projects/status/ynjy63xrlvrrmseg/branch/develop?svg=true
-[appveyor-dev-link]:     https://ci.appveyor.com/project/thoemmi/stickywindows/branch/develop
-[nuget-master-badge]:    https://img.shields.io/nuget/v/StickyWindows.svg
-[nuget-master-link]:     https://www.nuget.org/packages/StickyWindows
-[nuget-dev-badge]:       https://img.shields.io/nuget/vpre/StickyWindows.svg
-[nuget-dev-link]:        https://www.nuget.org/packages/StickyWindows
-[nuget-master-wpf-badge]:  https://img.shields.io/nuget/v/StickyWindows.WPF.svg
-[nuget-master-wpf-link]:   https://www.nuget.org/packages/StickyWindows.WPF
-[nuget-dev-wpf-badge]:     https://img.shields.io/nuget/vpre/StickyWindows.WPF.svg
-[nuget-dev-wpf-link]:      https://www.nuget.org/packages/StickyWindows.WPF
+4. The private static _stickGap field of the StickyWindow class has been replaced by a new instance property named
+StickGravity.  This property specifies the stickiness strength, and is expressed as the number of pixels away from
+an anchor window a sticky window must be moved in order to have it become stuck to or unstuck from that window.
 
-## Usage
+## Sticky Window Types
 
-Actually there are two libraries published: one is for WinForms applications,
-and the other one for WPF applications. The latter bases on the WinForms package
-though. but this shouldn't be an issue as that the WinForms library is part of the
-.NET framework and as such is always available.
+A new StickyWindowType enumeration indicates the type of a sticky window, which in turn determines its behavior with
+regard to stickiness.  All sticky windows are created by calling the StickyWindow constructor, which accepts a sticky
+window type argument whoses default is StickyWindowType.Sticky.  This value makes a window stick to windows marked as
+anchors when it is moved sufficiently close to them.
 
-### WinForms
+A StickyWindowType of Anchor or StickyAnchor indicates that the window acts as an anchor for windows of the Sticky
+type to stick to.  That is, if a sticky window is moved or closed to an anchor window it will be pulled to it and
+stuck to its edge.  The difference between Anchor and StickyAnchor windows is that when a StickyAnchor window is
+moved, any sticky windows currently stuck to it are moved along with it.  Anchor windows of either type do not grab
+onto (i.e., stick to) other windows (even sticky windows) when being moved; a window only gets pulled in to stick
+to another window if the former window is Sticky and the latter window is an Anchor or StickyAnchor.
 
-For WinForms application, use the
-[**StickyWindow**](https://www.nuget.org/packages/StickyWindows)
-package.
+Resizing an anchor window unsticks any windows stuck to it; this implies that windows stuck to a StickyAnchor
+window don't move as a result of being stuck to an edge being resized.  Similarly, resizing a sticky window that
+is stuck to an anchor window unsticks the window from the anchor.  Windows stuck to a StickyAnchor that are pulled
+away from the anchor window become unstuck from that window, and moving the anchor window will no longer affect them.
 
-In the **constructor** of your form add this line:
-
-```csharp
-new StickyWindows.StickyWindow(this);
-```
-
-If you want to deviate from the default settings, `StickyWindow` provides following
-boolean properties (which are all `true` by default:
-
-* `StickOnMove`<br>Allows the form to try to stick when the form is moved.
-* `StickOnResize`<br>Allows the form to try to stick when the form is resized.
-* `StickToOther`<br>Allows the form to try to stick to other stick-able forms.
-* `StickToScreen`<br>Allows the form to try to stick to the screen margins.
-
-### WPF
-
-For WinForms application, use the
-[**StickyWindow.WPF**](https://www.nuget.org/packages/StickyWindows.WPF)
-package.
-
-
-You have two options to make your windows "sticky":
-
-1. Subscribe to your window's `Loaded` event and call the extension method
-   `CreateStickyWindow` in the handler:
-   ```csharp
-   _stickyWindow = this.CreateStickyWindow();
-   ```
-
-2. Use the `StickyWindowBehavior` in your XAML code (which I think is more elegant
-   than option 1):
-   ```xml
-    <Window
-      x:Class="WpfTest.Window2"
-      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-      xmlns:wpf="clr-namespace:StickyWindows.WPF;assembly=StickyWindows.WPF"
-      ...>
-      <i:Interaction.Behaviors>
-        <wpf:StickyWindowBehavior />
-      </i:Interaction.Behaviors>
-      ...
-    </Window>
-   ```
-
-Both options support the same properties as the WinForms implementation.
-
-> Please note that **StickyWindows.WPF** requires **System.Windows.Interactivity**,
-> which is neither part of the library nor a dependency of the NuGet package. The point
-> is, there's no official NuGet package for **System.Windows.Interactivity** by Microsoft.
-> I decided against delivering this library as part of **StickyWindows.WPF** as it may
-> conflict with different versions in other libraries you may be using potentially.
-
-## Version History
-
-### v0.3 (not released yet)
-
-* Fixed the MaximumSize and MinimumSize issue reported in #5 (Thanks to @lucky3)
-* Added [SourceLink](https://github.com/dotnet/sourcelink) support
-
-### v0.2 (11-Apr-2017)
-
-* Fixed strange margin when running on Windows 10 ([#1](https://github.com/thoemmi/StickyWindows/issues/1))
-
-### v0.1 (10-Mar-2017)
-
-* Inital Release
-
+For further details, see the [README](https://github.com/thoemmi/StickyWindows/blob/develop/README.md) in the
+repository from which this repository was forked.
 

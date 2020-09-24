@@ -618,7 +618,7 @@ namespace StickyWindows {
 
                 foreach (var sw in _stickyWindows) {
                     // Move any sticky windows anchored to this window along with it.
-                    if (IsSticky(sw.WindowType) && sw._anchor == this)
+                    if (IsSticky(sw.WindowType) && sw != this && sw._anchor == this)
                     {
                         var bounds = sw._originalForm.Bounds;
                         bounds.X += distanceX;

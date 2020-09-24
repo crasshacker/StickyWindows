@@ -37,7 +37,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Margin="5">Stickiness:</TextBlock>
-            <TextBox x:Name="CbStickGravity" Width="25">20</TextBox>
+            <TextBox x:Name="CbStickGravity" Width="50">20</TextBox>
         </StackPanel>
         <CheckBox
             x:Name="CbStickToScreen"

@@ -33,15 +33,22 @@ A new StickyWindowType enumeration indicates the type of a sticky window, which 
 regard to stickiness.  Available sticky types are:
 
 * None - The window does not grab or stick to other windows, nor does it act as an anchor for others to stick to.
-* Anchor - A window which Grabby and Sticky windows will latch onto when they are moved sufficiently close to it.
-* Grabby - A window that attaches to an anchor when moved close to it, but doesn't move when the anchor moves.
-* Sticky - A grabby window that, once it grabs an anchor, continues to stick to the anchor when it is moved.
+* Anchor - A window which Grabby and Sticky windows will latch onto when they are moved within range of it.
+* Grabby - A window that attaches to an anchor when moved close to it, but doesn't move with the anchor window.
+* Sticky - A grabby window that, once it grabs an anchor window, remains stuck to it when the anchor window is moved.
 * Cohesive - A sticky window that also operates as an anchor, so that other sticky windows will stick to it.
 
 A StickyWindowType of Anchor indicates that the window will attract grabby and sticky windows when they move close
-to it.  (The inverse is not true; it won't stick to grabby/sticky windows when moved close to them.)  Both Grabby
-and Sticky windows will latch onto an Anchor window, but only Sticky windows are carried along with it when it moves.
-(Sticky windows stuck to an Anchor window become unstuck if either of the two windows is resised.)
+to it.  (The inverse is not true; it won't stick to grabby/sticky windows when it is moved close to them.)  Both
+Grabby and Sticky windows will latch onto an Anchor window, but only Sticky windows are carried along with it when
+it moves.  (Sticky windows stuck to an Anchor window become unstuck if either of the two windows is resized.)
+
+A Cohesive window acts as both an Anchor and a Sticky window.  When a Cohesive window A is moved close to another
+Cohesive window B and becomes stuck to it, window B serves as an anchor, and will carry window A with it when it
+is moved.  However, if window A is moved it does not carry window B with it, even though they are both Cohesive;
+if it did, there would be no way to detach the windows from one another.  Thus, whether a Cohesive window behaves
+as an Anchor or as a Sticky window depends upon whether another window was stuck to it, or whether it was instead
+stuck to another window.
 
 For details on the original StickyWindows project, see the
 [README](https://github.com/thoemmi/StickyWindows/blob/develop/README.md)

@@ -2,43 +2,48 @@
 # StickyWindows
 
 **Note:** This is a fork of this [StickyWindows GitHub repo](https://github.com/thoemmi/StickyWindows), which I've
-retargeted to .NET Core 3.x and improved in a few ways:
+retargeted to .NET Core 3.1 and improved in a few ways:
 
 1. Resizing a WPF window in certain ways, for example by dragging the right edge of the window leftward past the
 window's left edge very quickly, would cause the code to calculate and then (mis-)use a negative window width,
 resulting in an exception being thrown (possibly leading to an application crash).  This issue has been resolved.
 
-2. A new GetBorderThickness extension method for the WPF Window class returns the thickness of the left, top,
-right, and bottom window borders, expressed in device-independent pixels.
+2. A StickyWindowType parameter has been added to the StickyWindow constructor.  This value determines the manner
+in which the window behaves with regard to stickiness, i.e., whether it sticks to other windows when moved close
+to them, whether it continues to stick when such an "anchor" window is moved, and whether the window serves as an
+anchor to which other windows will stick.  The WindowType property of a StickyWindow can be changed at any time to
+alter the way that window behaves with regard to stickiness.
 
-3. The RegisterExternalForm methods have been removed, and a StickyWindowType parameter has been added to the
-StickyWindow constructor.  All windows that serve as either anchors to which sticky windows will stick, or as
-sticky windows themselves, are imbued with their stickiness attributes by constructing a StickyWindow instance
-of the appropriate type and associating it with the actual form or window.
+3. The RegisterExternalForm methods have been removed.  All StickyWindow instances are automatically registered.
+To unregister a window so that it no longer participates with other StickyWindows, set its WindowType propery to
+StickyWindowType.None.  To reregister the window simply change its WindowType to the desired value.
 
-4. The private static _stickGap field of the StickyWindow class has been replaced by a new instance property named
-StickGravity.  This property specifies the stickiness strength, and is expressed as the number of pixels away from
-an anchor window a sticky window must be moved in order to have it become stuck to or unstuck from that window.
+4. The private static _stickGap field of the StickyWindow class has been replaced by a new public instance property
+named StickGravity.  This property specifies the stickiness strength, and is expressed as the number of pixels away
+from an anchor window a sticky window must be moved in order to have it become stuck to or unstuck from that window.
+
+5. Sticky windows can be moved by dragging the mouse from within the client area of the window is a specified
+modifier key (Control or Shift) is held down when the move is initiated.  By default moving a window by dragging
+from within the client area is disabled (the ClientAreaMoveKey property is set to ModifierKey.None).  Set the
+ClientAreaMoveKey property to either ModifierKey.Shift or ModifierKey.Control to enable it.
 
 ## Sticky Window Types
 
 A new StickyWindowType enumeration indicates the type of a sticky window, which in turn determines its behavior with
-regard to stickiness.  All sticky windows are created by calling the StickyWindow constructor, which accepts a sticky
-window type argument whoses default is StickyWindowType.Sticky.  This value makes a window stick to windows marked as
-anchors when it is moved sufficiently close to them.
+regard to stickiness.  Available sticky types are:
 
-A StickyWindowType of Anchor or StickyAnchor indicates that the window acts as an anchor for windows of the Sticky
-type to stick to.  That is, if a sticky window is moved or closed to an anchor window it will be pulled to it and
-stuck to its edge.  The difference between Anchor and StickyAnchor windows is that when a StickyAnchor window is
-moved, any sticky windows currently stuck to it are moved along with it.  Anchor windows of either type do not grab
-onto (i.e., stick to) other windows (even sticky windows) when being moved; a window only gets pulled in to stick
-to another window if the former window is Sticky and the latter window is an Anchor or StickyAnchor.
+* None - The window does not grab or stick to other windows, nor does it act as an anchor for others to stick to.
+* Anchor - A window which Grabby and Sticky windows will latch onto when they are moved sufficiently close to it.
+* Grabby - A window that attaches to an anchor when moved close to it, but doesn't move when the anchor moves.
+* Sticky - A grabby window that, once it grabs an anchor, continues to stick to the anchor when it is moved.
+* Cohesive - A sticky window that also operates as an anchor, so that other sticky windows will stick to it.
 
-Resizing an anchor window unsticks any windows stuck to it; this implies that windows stuck to a StickyAnchor
-window don't move as a result of being stuck to an edge being resized.  Similarly, resizing a sticky window that
-is stuck to an anchor window unsticks the window from the anchor.  Windows stuck to a StickyAnchor that are pulled
-away from the anchor window become unstuck from that window, and moving the anchor window will no longer affect them.
+A StickyWindowType of Anchor indicates that the window will attract grabby and sticky windows when they move close
+to it.  (The inverse is not true; it won't stick to grabby/sticky windows when moved close to them.)  Both Grabby
+and Sticky windows will latch onto an Anchor window, but only Sticky windows are carried along with it when it moves.
+(Sticky windows stuck to an Anchor window become unstuck if either of the two windows is resised.)
 
-For further details, see the [README](https://github.com/thoemmi/StickyWindows/blob/develop/README.md) in the
-repository from which this repository was forked.
+For details on the original StickyWindows project, see the
+[README](https://github.com/thoemmi/StickyWindows/blob/develop/README.md)
+in the repository from which this repository was forked.
 

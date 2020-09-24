@@ -46,8 +46,7 @@ namespace StickyWindows {
                 return;
             }
 
-            Win32.RECT rect;
-            if (Win32.DwmGetWindowAttribute(Handle, Win32.DWMWINDOWATTRIBUTE.ExtendedFrameBounds, out rect,
+            if (Win32.DwmGetWindowAttribute(Handle, Win32.DWMWINDOWATTRIBUTE.ExtendedFrameBounds, out Win32.RECT rect,
                     Marshal.SizeOf(typeof(Win32.RECT))) == 0)
             {
                 var originalFormBounds = InternalBounds;
@@ -103,23 +102,27 @@ namespace StickyWindows {
             }
         }
 
-        // TODO - Get DPI settings on the particular monitor on which the form/window is displayed,
-        //        rather than just using the general system parameter values.
         private static void InitDisplayScalingFactors()
         {
             if (_scaleX == 0 || _scaleY == 0)
             {
-                var bindingFlags = BindingFlags.NonPublic | BindingFlags.Static;
-                var dpiXProperty = typeof(System.Windows.SystemParameters).GetProperty("DpiX", bindingFlags);
-                var dpiYProperty = typeof(System.Windows.SystemParameters).GetProperty("Dpi",  bindingFlags);
-
-                int dpiX = (int) dpiXProperty.GetValue(null, null);
-                int dpiY = (int) dpiYProperty.GetValue(null, null);
-
-                // A DPI value of 96 is 100% (1-to-1 scaling).
-                _scaleX = dpiX / 96.0;
-                _scaleY = dpiY / 96.0;
+                (_scaleX, _scaleY) = GetDisplayScalingFactors();
             }
+        }
+
+        // TODO - Get DPI settings on the particular monitor on which the app is displayed,
+        //        rather than just using the general system parameter values.
+        private static (double, double) GetDisplayScalingFactors()
+        {
+            var bindingFlags = BindingFlags.NonPublic | BindingFlags.Static;
+            var dpiXProperty = typeof(System.Windows.SystemParameters).GetProperty("DpiX", bindingFlags);
+            var dpiYProperty = typeof(System.Windows.SystemParameters).GetProperty("Dpi",  bindingFlags);
+
+            int dpiX = (int) dpiXProperty.GetValue(null, null);
+            int dpiY = (int) dpiYProperty.GetValue(null, null);
+
+            // A DPI of 96 is 100% (1-to-1 scaling).
+            return (dpiX / 96.0, dpiY / 96.0);
         }
     }
 }

@@ -10,7 +10,6 @@ namespace StickyWindows.WPF {
         /// Creates a <see cref="StickyWindow"/> object for the given <see cref="Window"/>.
         /// </summary>
         /// <param name="window">The window to create a sticky window for.</param>
-        /// <param name="windowType">The type of stickiness to apply to the window (default is Sticky).</param>
         /// <returns>A <see cref="StickyWindow"/> object.</returns>
         public static StickyWindow CreateStickyWindow(this Window window, StickyWindowType windowType
                                                                         = StickyWindowType.Sticky) {
@@ -18,8 +17,8 @@ namespace StickyWindows.WPF {
         }
 
         /// <summary>
-        /// Gets a four element array containing the left, top, right, and bottom border thicknesses of the
-        /// <see cref="Window"/>, in device-independent pixel units.
+        /// Gets an int[4] array containing the left, top, right, and bottom border thicknesses of the
+        /// <see cref="Window"/>, in device-independent pixels.
         /// </summary>
         /// <param name="window">The window in question.</param>
         /// <returns>A four element array of doubles.</returns>

@@ -13,7 +13,7 @@ namespace WpfTest {
         }
 
         private void window1Loaded(object sender, RoutedEventArgs e) {
-            StickyWindow.Register(this.CreateStickyWindow(StickyWindowType.StickyAnchor));
+            this.CreateStickyWindow(StickyWindowType.Anchor);
         }
 
 

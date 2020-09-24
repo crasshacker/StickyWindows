@@ -25,7 +25,7 @@ namespace WinTest {
             // TODO: Add any constructor code after InitializeComponent call
             //
 
-            StickyWindow.Register(new StickyWindow(this, StickyWindowType.StickyAnchor));
+            new StickyWindow(this, StickyWindowType.Anchor);
         }
 
         /// <summary>

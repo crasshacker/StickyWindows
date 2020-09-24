@@ -24,6 +24,12 @@ namespace StickyWindows {
             FreezeRepresentation
         }
 
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
         [DllImport("user32.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern short GetAsyncKeyState(int vKey);
 
@@ -34,11 +40,28 @@ namespace StickyWindows {
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ClientToScreen(IntPtr hWnd, out POINT lpPoint);
+
         [DllImport("dwmapi.dll")]
         public static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT pvAttribute, int cbAttribute);
 
         /// <summary>
-        /// VK is just a placeholder for VK (VirtualKey) general definitions
+        /// MK is just a placeholder for MK (Key State Mask) general definitions.
+        /// </summary>
+        public class MK {
+            public const int MK_CONTROL  = 0x08;
+            public const int MK_LBUTTON  = 0x01;
+            public const int MK_MBUTTON  = 0x10;
+            public const int MK_RBUTTON  = 0x02;
+            public const int MK_SHIFT    = 0x04;
+            public const int MK_XBUTTON1 = 0x20;
+            public const int MK_XBUTTON2 = 0x40;
+        }
+
+        /// <summary>
+        /// VK is just a placeholder for VK (VirtualKey) general definitions.
         /// </summary>
         public class VK {
             public const int VK_SHIFT = 0x10;
@@ -48,7 +71,7 @@ namespace StickyWindows {
         }
 
         /// <summary>
-        /// WM is just a placeholder class for WM (WindowMessage) definitions
+        /// WM is just a placeholder class for WM (WindowMessage) definitions.
         /// </summary>
         public class WM {
             public const int WM_MOUSEMOVE = 0x0200;
@@ -62,7 +85,7 @@ namespace StickyWindows {
         }
 
         /// <summary>
-        /// HT is just a placeholder for HT (HitTest) definitions
+        /// HT is just a placeholder for HT (HitTest) definitions.
         /// </summary>
         public class HT {
             public const int HTERROR = -2;

@@ -3,8 +3,10 @@ using System;
 namespace StickyWindows {
     public enum StickyWindowType
     {
-        StickyAnchor,   // A top level window that carries stuck windows with it when it moves.
-        Sticky,         // A window that sticks to an anchor (or sticky anchor) but doesn't move with it.
-        Anchor          // An anchor window that moves independently of windows stuck to it.
+        None,           // The window is not sticky, nor does it act as an anchor.
+        Anchor,         // A (normally top level) window that carries stuck windows with it when it moves.
+        Grabby,         // A window that, when it approaches an Anchor (or Cohesive) window, grabs onto it.
+        Sticky,         // A Grabby window that remains stuck to an Anchor/Cohesive window as it is moved.
+        Cohesive        // A Sticky window that's also an anchor window (other sticky windows stick to it).
     }
 }

@@ -13,11 +13,13 @@
     <Window.Resources>
         <wpfTest:NullableBooleanToBooleanConverter x:Key="NullableBooleanToBooleanConverter" />
         <wpfTest:IntegerToWindowTypeConverter x:Key="IntegerToWindowTypeConverter" />
+        <wpfTest:StringToModifierKeyConverter x:Key="StringToModifierKeyConverter" />
         <wpfTest:StringToIntegerConverter x:Key="StringToIntegerConverter" />
     </Window.Resources>
     <i:Interaction.Behaviors>
         <wpf:StickyWindowBehavior
             WindowType="{Binding ElementName=CbWindowType, Path=SelectedIndex, Converter={StaticResource IntegerToWindowTypeConverter}}"
+            ClientAreaMoveKey="{Binding ElementName=CbClientAreaMoveKey, Path=SelectedItem, Converter={StaticResource StringToModifierKeyConverter}}"
             StickGravity="{Binding ElementName=CbStickGravity, Path=Text, Converter={StaticResource StringToIntegerConverter}}"
             StickOnMove="{Binding ElementName=CbStickOnMove, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}"
             StickOnResize="{Binding ElementName=CbStickOnResize, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}"
@@ -25,39 +27,47 @@
             StickToScreen="{Binding ElementName=CbStickToScreen, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}" />
     </i:Interaction.Behaviors>
     <StackPanel>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Margin="5">
             <TextBlock Margin="5">Window type:</TextBlock>
-            <ComboBox x:Name="CbWindowType">
+            <ComboBox x:Name="CbWindowType" SelectedIndex="3">
                 <ComboBoxItem>None</ComboBoxItem>
                 <ComboBoxItem>Anchor</ComboBoxItem>
                 <ComboBoxItem>Grabby</ComboBoxItem>
-                <ComboBoxItem IsSelected="True">Sticky</ComboBoxItem>
+                <ComboBoxItem>Sticky</ComboBoxItem>
                 <ComboBoxItem>Cohesive</ComboBoxItem>
             </ComboBox>
         </StackPanel>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Margin="5">
+            <TextBlock Margin="5">Client area move key:</TextBlock>
+            <ComboBox x:Name="CbClientAreaMoveKey" SelectedIndex="0">
+                <ComboBoxItem>None</ComboBoxItem>
+                <ComboBoxItem>Control</ComboBoxItem>
+                <ComboBoxItem>Shift</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="5">
             <TextBlock Margin="5">Stickiness:</TextBlock>
             <TextBox x:Name="CbStickGravity" Width="50">20</TextBox>
         </StackPanel>
         <CheckBox
             x:Name="CbStickToScreen"
-            Margin="5"
             Content="Stick to screen"
-            IsChecked="True" />
+            IsChecked="True"
+            Margin="5" />
         <CheckBox
             x:Name="CbStickToOther"
-            Margin="5"
             Content="Stick to other"
-            IsChecked="True" />
+            IsChecked="True"
+            Margin="5" />
         <CheckBox
             x:Name="CbStickOnResize"
-            Margin="5"
             Content="Stick on resize"
-            IsChecked="True" />
+            IsChecked="True"
+            Margin="5" />
         <CheckBox
             x:Name="CbStickOnMove"
-            Margin="5"
             Content="Stick on move"
-            IsChecked="True" />
+            IsChecked="True"
+            Margin="5" />
     </StackPanel>
 </Window>

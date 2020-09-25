@@ -10,6 +10,9 @@ namespace StickyWindows.WPF {
         public static readonly DependencyProperty WindowTypeProperty = DependencyProperty.Register(
             "WindowType", typeof(StickyWindowType), typeof(StickyWindowBehavior), new PropertyMetadata(default(StickyWindowType), OnWindowTypeChanged));
 
+        public static readonly DependencyProperty ClientAreaMoveKeyProperty = DependencyProperty.Register(
+            "ClientAreaMoveKey", typeof(StickyWindow.ModifierKey), typeof(StickyWindowBehavior), new PropertyMetadata(default(StickyWindow.ModifierKey), OnClientAreaMoveKeyChanged));
+
         public static readonly DependencyProperty StickGravityProperty = DependencyProperty.Register(
             "StickGravity", typeof(int), typeof(StickyWindowBehavior), new PropertyMetadata(20, OnStickGravityChanged));
 
@@ -33,6 +36,11 @@ namespace StickyWindows.WPF {
         public StickyWindowType WindowType {
             get => (StickyWindowType)GetValue(WindowTypeProperty);
             set => SetValue(WindowTypeProperty, value);
+        }
+
+        public StickyWindow.ModifierKey ClientAreaMoveKey {
+            get => (StickyWindow.ModifierKey)GetValue(ClientAreaMoveKeyProperty);
+            set => SetValue(ClientAreaMoveKeyProperty, value);
         }
 
         public int StickGravity {
@@ -64,6 +72,13 @@ namespace StickyWindows.WPF {
             var stickyWindow = (StickyWindow)d.GetValue(StickyWindowProperty);
             if (stickyWindow != null) {
                 stickyWindow.WindowType = (StickyWindowType)e.NewValue;
+            }
+        }
+
+        private static void OnClientAreaMoveKeyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            var stickyWindow = (StickyWindow)d.GetValue(StickyWindowProperty);
+            if (stickyWindow != null) {
+                stickyWindow.ClientAreaMoveKey = (StickyWindow.ModifierKey)e.NewValue;
             }
         }
 
@@ -122,6 +137,7 @@ namespace StickyWindows.WPF {
         private void CreateStickyWindow() {
             var stickyWindow = AssociatedObject.CreateStickyWindow();
             stickyWindow.WindowType = WindowType;
+            stickyWindow.ClientAreaMoveKey = ClientAreaMoveKey;
             stickyWindow.StickGravity = StickGravity;
             stickyWindow.StickToScreen = StickToScreen;
             stickyWindow.StickToOther = StickToOther;

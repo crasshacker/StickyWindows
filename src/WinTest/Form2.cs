@@ -12,6 +12,8 @@ namespace WinTest {
 
         private Label    labelWindowType;
         private ComboBox comboWindowType;
+        private Label    labelClientMoveKey;
+        private ComboBox comboClientMoveKey;
         private Label    labelStickGravity;
         private TextBox  textStickGravity;
         private CheckBox checkStickToScreen;
@@ -28,6 +30,8 @@ namespace WinTest {
             InitializeComponent();
             stickyWindow = new StickyWindow(this);
             comboWindowType.SelectedIndex = (int) stickyWindow.WindowType;
+            comboClientMoveKey.SelectedItem = Enum.GetName(typeof(StickyWindow.ModifierKey),
+                                                            stickyWindow.ClientAreaMoveKey);
             textStickGravity.Text = stickyWindow.StickGravity.ToString();
             checkStickOnMove.Checked = stickyWindow.StickOnMove;
             checkStickOnResize.Checked = stickyWindow.StickOnResize;
@@ -56,6 +60,8 @@ namespace WinTest {
         private void InitializeComponent() {
             this.labelWindowType = new System.Windows.Forms.Label();
             this.comboWindowType = new System.Windows.Forms.ComboBox();
+            this.labelClientMoveKey = new System.Windows.Forms.Label();
+            this.comboClientMoveKey = new System.Windows.Forms.ComboBox();
             this.labelStickGravity = new System.Windows.Forms.Label();
             this.textStickGravity = new System.Windows.Forms.TextBox();
             this.checkStickToScreen = new System.Windows.Forms.CheckBox();
@@ -63,91 +69,112 @@ namespace WinTest {
             this.checkStickOnResize = new System.Windows.Forms.CheckBox();
             this.checkStickOnMove = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-
             // 
             // labelWindowType
             // 
-            this.labelWindowType.Location = new System.Drawing.Point(26, 30);
+            this.labelWindowType.Location = new System.Drawing.Point(26, 32);
             this.labelWindowType.Name = "labelWindowType";
-            this.labelWindowType.Size = new System.Drawing.Size(85, 28);
+            this.labelWindowType.Size = new System.Drawing.Size(85, 30);
+            this.labelWindowType.TabIndex = 0;
             this.labelWindowType.Text = "Window Type";
-
             // 
             // comboWindowType
             // 
-            this.comboWindowType.Location = new System.Drawing.Point(115, 30);
-            this.comboWindowType.Items.AddRange(new object[] { "None", "Anchor", "Grabby", "Sticky", "Cohesive" });
+            this.comboWindowType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboWindowType.Items.AddRange(new object[] {
+            "None",
+            "Anchor",
+            "Grabby",
+            "Sticky",
+            "Cohesive"});
+            this.comboWindowType.Location = new System.Drawing.Point(157, 32);
             this.comboWindowType.Name = "comboWindowType";
-            this.comboWindowType.Size = new System.Drawing.Size(75, 28);
+            this.comboWindowType.Size = new System.Drawing.Size(75, 23);
             this.comboWindowType.TabIndex = 0;
-            this.comboWindowType.DropDownStyle = ComboBoxStyle.DropDownList;
             this.comboWindowType.SelectedIndexChanged += new System.EventHandler(this.comboWindowType_SelectionChanged);
-
+            // 
+            // labelClientMoveKey
+            // 
+            this.labelClientMoveKey.Location = new System.Drawing.Point(26, 69);
+            this.labelClientMoveKey.Name = "labelClientMoveKey";
+            this.labelClientMoveKey.Size = new System.Drawing.Size(125, 30);
+            this.labelClientMoveKey.TabIndex = 1;
+            this.labelClientMoveKey.Text = "Client Area Move Key";
+            // 
+            // comboClientMoveKey
+            // 
+            this.comboClientMoveKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboClientMoveKey.Items.AddRange(new object[] {
+            "None",
+            "Control",
+            "Shift"});
+            this.comboClientMoveKey.Location = new System.Drawing.Point(157, 69);
+            this.comboClientMoveKey.Name = "comboClientMoveKey";
+            this.comboClientMoveKey.Size = new System.Drawing.Size(75, 23);
+            this.comboClientMoveKey.TabIndex = 0;
+            this.comboClientMoveKey.SelectedIndexChanged += new System.EventHandler(this.comboClientMoveKey_SelectionChanged);
             // 
             // labelStickGravity
             // 
-            this.labelStickGravity.Location = new System.Drawing.Point(26, 65);
+            this.labelStickGravity.Location = new System.Drawing.Point(26, 107);
             this.labelStickGravity.Name = "labelStickGravity";
-            this.labelStickGravity.Size = new System.Drawing.Size(85, 28);
+            this.labelStickGravity.Size = new System.Drawing.Size(85, 30);
+            this.labelStickGravity.TabIndex = 2;
             this.labelStickGravity.Text = "Stick Gravity";
-
             // 
             // textStickGravity
             // 
-            this.textStickGravity.Location = new System.Drawing.Point(115, 65);
+            this.textStickGravity.Location = new System.Drawing.Point(157, 107);
             this.textStickGravity.Name = "textStickGravity";
-            this.textStickGravity.Size = new System.Drawing.Size(30, 28);
+            this.textStickGravity.Size = new System.Drawing.Size(75, 23);
             this.textStickGravity.TabIndex = 1;
             this.textStickGravity.Text = "Stick Gravity";
             this.textStickGravity.TextChanged += new System.EventHandler(this.textStickGravity_TextChanged);
-
             // 
             // checkStickToScreen
             // 
-            this.checkStickToScreen.Location = new System.Drawing.Point(26, 100);
+            this.checkStickToScreen.Location = new System.Drawing.Point(26, 144);
             this.checkStickToScreen.Name = "checkStickToScreen";
-            this.checkStickToScreen.Size = new System.Drawing.Size(125, 28);
+            this.checkStickToScreen.Size = new System.Drawing.Size(125, 30);
             this.checkStickToScreen.TabIndex = 2;
             this.checkStickToScreen.Text = "Stick to Screen";
             this.checkStickToScreen.CheckedChanged += new System.EventHandler(this.checkStickToScreen_CheckedChanged);
-
             // 
             // checkStickToOthers
             // 
-            this.checkStickToOthers.Location = new System.Drawing.Point(26, 135);
+            this.checkStickToOthers.Location = new System.Drawing.Point(26, 181);
             this.checkStickToOthers.Name = "checkStickToOthers";
-            this.checkStickToOthers.Size = new System.Drawing.Size(125, 28);
+            this.checkStickToOthers.Size = new System.Drawing.Size(125, 30);
             this.checkStickToOthers.TabIndex = 3;
             this.checkStickToOthers.Text = "Stick to Others";
             this.checkStickToOthers.CheckedChanged += new System.EventHandler(this.checkStickToOthers_CheckedChanged);
-
             // 
             // checkStickOnResize
             // 
-            this.checkStickOnResize.Location = new System.Drawing.Point(26, 170);
+            this.checkStickOnResize.Location = new System.Drawing.Point(26, 219);
             this.checkStickOnResize.Name = "checkStickOnResize";
-            this.checkStickOnResize.Size = new System.Drawing.Size(125, 27);
+            this.checkStickOnResize.Size = new System.Drawing.Size(125, 28);
             this.checkStickOnResize.TabIndex = 4;
             this.checkStickOnResize.Text = "Stick on Resize";
             this.checkStickOnResize.CheckedChanged += new System.EventHandler(this.checkStickOnResize_CheckedChanged);
-
             // 
             // checkStickOnMove
             // 
-            this.checkStickOnMove.Location = new System.Drawing.Point(26, 205);
+            this.checkStickOnMove.Location = new System.Drawing.Point(26, 256);
             this.checkStickOnMove.Name = "checkStickOnMove";
-            this.checkStickOnMove.Size = new System.Drawing.Size(125, 27);
+            this.checkStickOnMove.Size = new System.Drawing.Size(125, 29);
             this.checkStickOnMove.TabIndex = 5;
             this.checkStickOnMove.Text = "Stick On Move";
             this.checkStickOnMove.CheckedChanged += new System.EventHandler(this.checkStickOnMove_CheckedChanged);
-
             // 
             // Form2
             // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(6, 15);
-            this.ClientSize = new System.Drawing.Size(292, 266);
+            this.AutoScaleBaseSize = new System.Drawing.Size(6, 16);
+            this.ClientSize = new System.Drawing.Size(292, 308);
             this.Controls.Add(this.labelWindowType);
             this.Controls.Add(this.comboWindowType);
+            this.Controls.Add(this.labelClientMoveKey);
+            this.Controls.Add(this.comboClientMoveKey);
             this.Controls.Add(this.labelStickGravity);
             this.Controls.Add(this.textStickGravity);
             this.Controls.Add(this.checkStickOnMove);
@@ -159,6 +186,8 @@ namespace WinTest {
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
@@ -167,6 +196,16 @@ namespace WinTest {
 
         private void comboWindowType_SelectionChanged(object sender, EventArgs e) {
             stickyWindow.WindowType = (StickyWindowType) comboWindowType.SelectedIndex;
+        }
+
+        private void comboClientMoveKey_SelectionChanged(object sender, EventArgs e) {
+            stickyWindow.ClientAreaMoveKey = comboClientMoveKey.SelectedItem.ToString() switch
+            {
+                "None"    => StickyWindow.ModifierKey.None,
+                "Control" => StickyWindow.ModifierKey.Control,
+                "Shift"   => StickyWindow.ModifierKey.Shift,
+                _         => StickyWindow.ModifierKey.None
+            };
         }
 
         private void textStickGravity_TextChanged(object sender, EventArgs e) {

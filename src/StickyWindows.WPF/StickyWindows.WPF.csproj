@@ -4,6 +4,22 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+ 
+    <PackageId>Sandcastlewich.StickyWindows.WPF</PackageId>
+    <Version>0.1.0</Version>
+
+    <Company>Sandcastlewich Software</Company>
+    <Authors>Corneliu I. Tusnea, Thomas Freudenberg, Scott Southard</Authors>
+    <Copyright>Copyright â¬â 2017 Corneliu I. Tusnea, Thomas Freudenberg</Copyright>
+
+    <Title>Sticky Windows</Title>
+    <Description>
+        Make your WPF application windows stick when moved or resized.  Each StickyWindow has a type that determines
+        whether other "sticky" windows jump to it when moved close, whether it jumps to other "anchor" windows when it
+        is moved close to them, and whether it remains attached to an anchor window when that anchor window is moved.
+    </Description>
+    <PackageTags>Window Sticky WPF</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

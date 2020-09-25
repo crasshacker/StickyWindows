@@ -12,6 +12,7 @@ namespace WinTest {
 
         private Label    labelWindowType;
         private ComboBox comboWindowType;
+        private Label    labelStickGravity;
         private TextBox  textStickGravity;
         private CheckBox checkStickToScreen;
         private CheckBox checkStickToOthers;
@@ -55,6 +56,7 @@ namespace WinTest {
         private void InitializeComponent() {
             this.labelWindowType = new System.Windows.Forms.Label();
             this.comboWindowType = new System.Windows.Forms.ComboBox();
+            this.labelStickGravity = new System.Windows.Forms.Label();
             this.textStickGravity = new System.Windows.Forms.TextBox();
             this.checkStickToScreen = new System.Windows.Forms.CheckBox();
             this.checkStickToOthers = new System.Windows.Forms.CheckBox();
@@ -78,14 +80,23 @@ namespace WinTest {
             this.comboWindowType.Name = "comboWindowType";
             this.comboWindowType.Size = new System.Drawing.Size(75, 28);
             this.comboWindowType.TabIndex = 0;
+            this.comboWindowType.DropDownStyle = ComboBoxStyle.DropDownList;
             this.comboWindowType.SelectedIndexChanged += new System.EventHandler(this.comboWindowType_SelectionChanged);
+
+            // 
+            // labelStickGravity
+            // 
+            this.labelStickGravity.Location = new System.Drawing.Point(26, 65);
+            this.labelStickGravity.Name = "labelStickGravity";
+            this.labelStickGravity.Size = new System.Drawing.Size(85, 28);
+            this.labelStickGravity.Text = "Stick Gravity";
 
             // 
             // textStickGravity
             // 
-            this.textStickGravity.Location = new System.Drawing.Point(26, 65);
+            this.textStickGravity.Location = new System.Drawing.Point(115, 65);
             this.textStickGravity.Name = "textStickGravity";
-            this.textStickGravity.Size = new System.Drawing.Size(125, 28);
+            this.textStickGravity.Size = new System.Drawing.Size(30, 28);
             this.textStickGravity.TabIndex = 1;
             this.textStickGravity.Text = "Stick Gravity";
             this.textStickGravity.TextChanged += new System.EventHandler(this.textStickGravity_TextChanged);
@@ -137,6 +148,7 @@ namespace WinTest {
             this.ClientSize = new System.Drawing.Size(292, 266);
             this.Controls.Add(this.labelWindowType);
             this.Controls.Add(this.comboWindowType);
+            this.Controls.Add(this.labelStickGravity);
             this.Controls.Add(this.textStickGravity);
             this.Controls.Add(this.checkStickOnMove);
             this.Controls.Add(this.checkStickOnResize);

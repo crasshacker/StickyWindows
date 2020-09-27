@@ -212,7 +212,7 @@ namespace StickyWindows {
         /// </summary>
         public void Stick()
         {
-            if (IsGrabby(WindowType)) {
+            if (IsGrabby(this)) {
                 _formRect = _originalForm.Bounds;
 
                 if (StickToScreen) {
@@ -225,7 +225,7 @@ namespace StickyWindows {
 
                 if (StickToOther) {
                     foreach (var sw in _stickyWindows) {
-                        if (IsAnchor(sw.WindowType))
+                        if (IsAnchor(sw))
                         {
                             _anchor = Move_Stick(sw._originalForm.Bounds, true) && sw._anchor != this ? sw : null;
                         }
@@ -440,6 +440,17 @@ namespace StickyWindows {
             _formOffsetRect.Height = 0;
             _formOffsetRect.Width = 0;
 
+            if (IsAnchor(this)) {
+                foreach (var sw in _stickyWindows) {
+                    if (sw._anchor == this) {
+                        sw._anchor = null;
+                    }
+                }
+            }
+            if (IsSticky(this)) {
+                _anchor = null;
+            }
+
             if (StickToScreen) {
                 Resize_Stick(activeScr.WorkingArea, false);
             }
@@ -612,37 +623,63 @@ namespace StickyWindows {
             _formOffsetPoint.X = StickGravity + 1; // (more than) maximum gaps
             _formOffsetPoint.Y = StickGravity + 1;
 
-            if (IsAnchor(WindowType)) {
+            void MoveWindowChain(StickyWindow window, int distanceX, int distanceY)
+            {
+                void MoveChain(HashSet<StickyWindow> windows, StickyWindow window, int distanceX, int distanceY)
+                {
+                    windows.Add(window);
+
+                    var bounds = window._originalForm.Bounds;
+                    bounds.X += distanceX;
+                    bounds.Y += distanceY;
+                    window._originalForm.Bounds = bounds;
+
+                    if (IsAnchor(window)) {
+                        foreach (var sw in _stickyWindows) {
+                            if (IsSticky(sw) && sw._anchor == window && ! windows.Contains(sw)) {
+                                windows.Add(sw);
+                                MoveChain(windows, sw, distanceX, distanceY);
+                                windows.Remove(sw);
+                            }
+                        }
+                    }
+                }
+
+                var windows = new HashSet<StickyWindow>();
+                MoveChain(windows, window, distanceX, distanceY);
+            }
+
+            if (IsAnchor(this)) {
                 var distanceX = _formRect.Location.X - _originalForm.Bounds.X;
                 var distanceY = _formRect.Location.Y - _originalForm.Bounds.Y;
 
                 foreach (var sw in _stickyWindows) {
-                    // Move any sticky windows anchored to this window along with it.
-                    if (IsSticky(sw.WindowType) && sw != this && sw._anchor == this)
-                    {
-                        var bounds = sw._originalForm.Bounds;
-                        bounds.X += distanceX;
-                        bounds.Y += distanceY;
-                        sw._originalForm.Bounds = bounds;
+                    // Move any sticky windows anchored to this window along with it (recursively).
+                    if (IsSticky(sw) && sw._anchor == this) {
+                        MoveWindowChain(sw, distanceX, distanceY);
                     }
                 }
             }
 
-            if (IsGrabby(WindowType))
+            if (IsGrabby(this))
             {
                 if (StickToScreen) {
                     Move_Stick(activeScr.WorkingArea, false);
                 }
 
                 if (StickToOther) {
+                    _anchor = null;
                     foreach (var sw in _stickyWindows) {
-                        if (sw != this && IsAnchor(sw.WindowType))
+                        if (sw != this && sw._anchor != this && IsAnchor(sw))
                         {
                             // Note that we don't set the anchor if the other window already has this window as its
                             // anchor, because the bidirectional linkage will make it impossible to detach either
                             // of the windows from the other (moving either of them away from the other will just
                             // pull the other window along it, leaving them attached to one another).
-                            _anchor = Move_Stick(sw._originalForm.Bounds, true) && sw._anchor != this ? sw : null;
+                            if (Move_Stick(sw._originalForm.Bounds, true)) {
+                                _anchor = sw;
+                                break;
+                            }
                         }
                     }
                 }
@@ -656,8 +693,15 @@ namespace StickyWindows {
             }
 
             _formRect.Offset(_formOffsetPoint);
-
             _originalForm.Bounds = _formRect;
+
+            if (IsAnchor(this)) {
+                foreach (var sw in _stickyWindows) {
+                    if (IsSticky(sw) && sw._anchor == this) {
+                        MoveWindowChain(sw, _formOffsetPoint.X, _formOffsetPoint.Y);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -749,14 +793,14 @@ namespace StickyWindows {
             _anchor = null;
         }
 
-        private static bool IsAnchor(StickyWindowType windowType) => windowType == StickyWindowType.Anchor
-                                                                  || windowType == StickyWindowType.Cohesive;
+        private static bool IsAnchor(StickyWindow window) => window.WindowType == StickyWindowType.Anchor
+                                                          || window.WindowType == StickyWindowType.Cohesive;
 
-        private static bool IsSticky(StickyWindowType windowType) => windowType == StickyWindowType.Sticky
-                                                                  || windowType == StickyWindowType.Cohesive;
+        private static bool IsSticky(StickyWindow window) => window.WindowType == StickyWindowType.Sticky
+                                                          || window.WindowType == StickyWindowType.Cohesive;
 
-        private static bool IsGrabby(StickyWindowType windowType) => windowType == StickyWindowType.Grabby
-                                                                  || windowType == StickyWindowType.Sticky
-                                                                  || windowType == StickyWindowType.Cohesive;
+        private static bool IsGrabby(StickyWindow window) => window.WindowType == StickyWindowType.Grabby
+                                                          || window.WindowType == StickyWindowType.Sticky
+                                                          || window.WindowType == StickyWindowType.Cohesive;
     }
 }

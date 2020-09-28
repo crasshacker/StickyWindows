@@ -59,7 +59,7 @@
             </ComboBox>
 
             <TextBlock Grid.Row="2" Grid.Column="0" Margin="5">Stickiness:</TextBlock>
-            <TextBox Grid.Row="2" Grid.Column="1" x:Name="CbStickGravity" Margin="0,5," Width="50">20</TextBox>
+            <TextBox Grid.Row="2" Grid.Column="1" x:Name="CbStickGravity" Margin="0,5" Width="50">20</TextBox>
         </Grid>
 
         <CheckBox Grid.Row="3" Grid.RowSpan="2"

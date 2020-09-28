@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.ComponentModel;
 using StickyWindows;
 using StickyWindows.WPF;
 
@@ -20,6 +21,10 @@ namespace WpfTest {
         private void newWindowButton_Click(object sender, RoutedEventArgs e) {
             var win2 = new Window2();
             win2.Show();
+        }
+
+        protected override void OnClosing(CancelEventArgs e) {
+            Application.Current.Shutdown();
         }
     }
 }

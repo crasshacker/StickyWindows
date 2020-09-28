@@ -224,10 +224,17 @@ namespace StickyWindows {
                 }
 
                 if (StickToOther) {
+                    _anchor = null;
                     foreach (var sw in _stickyWindows) {
-                        if (IsAnchor(sw))
+                        // Note that we don't set the anchor if the other window already has this window as its
+                        // anchor, because the bidirectional linkage will make it impossible to detach either
+                        // of the windows from the other (moving either of them away from the other will just
+                        // pull the other window along it, leaving them attached to one another).
+                        if (sw != this && sw._anchor != this && IsAnchor(sw))
                         {
-                            _anchor = Move_Stick(sw._originalForm.Bounds, true) && sw._anchor != this ? sw : null;
+                            if (Move_Stick(sw._originalForm.Bounds, true)) {
+                                _anchor ??= sw;
+                            }
                         }
                     }
                 }
@@ -440,6 +447,11 @@ namespace StickyWindows {
             _formOffsetRect.Height = 0;
             _formOffsetRect.Width = 0;
 
+            // We'd ideally like to move, along the same vector this window is being moved, all Sticky or Cohesive
+            // windows that are stuck to this window on one of the sides being resized, so that they remain stuck
+            // to that side.  This opens up the question of what the behavior should be in various cases, and would
+            // require a fair amount of effort to implement, so we instead just detach each of the windows that is
+            // currently stuck to this one.
             if (IsAnchor(this)) {
                 foreach (var sw in _stickyWindows) {
                     if (sw._anchor == this) {
@@ -447,19 +459,20 @@ namespace StickyWindows {
                     }
                 }
             }
-            if (IsSticky(this)) {
-                _anchor = null;
-            }
 
-            if (StickToScreen) {
-                Resize_Stick(activeScr.WorkingArea, false);
-            }
-
-            if (StickToOther) {
-                // now try to stick to other forms
-                foreach (var sw in _stickyWindows) {
-                    if (sw != this) {
-                        Resize_Stick(sw._originalForm.Bounds, true);
+            if (IsGrabby(this)) {
+                if (StickToScreen)  {
+                    Resize_Stick(activeScr.WorkingArea, false);
+                }
+                if (StickToOther) {
+                    _anchor = null;
+                    foreach (var sw in _stickyWindows) {
+                        if (sw != this && sw._anchor != this && IsAnchor(sw))
+                        {
+                            if (Resize_Stick(sw._originalForm.Bounds, true)) {
+                                _anchor ??= sw;
+                            }
+                        }
                     }
                 }
             }
@@ -516,25 +529,31 @@ namespace StickyWindows {
                 _formRect.Height += _formOffsetRect.Height + _formOffsetRect.Y;
             }
 
-            // Done !!
             _originalForm.Bounds = _formRect;
+            Stick();
         }
 
-        private void Resize_Stick(Rectangle toRect, bool bInsideStick) {
+        private bool Resize_Stick(Rectangle toRect, bool bInsideStick) {
+            bool stuck = false;
+
             if (_formRect.Right >= (toRect.Left - StickGravity) && _formRect.Left <= (toRect.Right + StickGravity)) {
                 if ((_resizeDirection & ResizeDir.Top) == ResizeDir.Top) {
                     if (Math.Abs(_formRect.Top - toRect.Bottom) <= Math.Abs(_formOffsetRect.Top) && bInsideStick) {
                         _formOffsetRect.Y = _formRect.Top - toRect.Bottom; // snap top to bottom
+                        stuck = true;
                     } else if (Math.Abs(_formRect.Top - toRect.Top) <= Math.Abs(_formOffsetRect.Top)) {
                         _formOffsetRect.Y = _formRect.Top - toRect.Top; // snap top to top
+                        stuck = true;
                     }
                 }
 
                 if ((_resizeDirection & ResizeDir.Bottom) == ResizeDir.Bottom) {
                     if (Math.Abs(_formRect.Bottom - toRect.Top) <= Math.Abs(_formOffsetRect.Bottom) && bInsideStick) {
                         _formOffsetRect.Height = toRect.Top - _formRect.Bottom; // snap Bottom to top
+                        stuck = true;
                     } else if (Math.Abs(_formRect.Bottom - toRect.Bottom) <= Math.Abs(_formOffsetRect.Bottom)) {
                         _formOffsetRect.Height = toRect.Bottom - _formRect.Bottom; // snap bottom to bottom
+                        stuck = true;
                     }
                 }
             }
@@ -543,19 +562,25 @@ namespace StickyWindows {
                 if ((_resizeDirection & ResizeDir.Right) == ResizeDir.Right) {
                     if (Math.Abs(_formRect.Right - toRect.Left) <= Math.Abs(_formOffsetRect.Right) && bInsideStick) {
                         _formOffsetRect.Width = toRect.Left - _formRect.Right; // Stick right to left
+                        stuck = true;
                     } else if (Math.Abs(_formRect.Right - toRect.Right) <= Math.Abs(_formOffsetRect.Right)) {
                         _formOffsetRect.Width = toRect.Right - _formRect.Right; // Stick right to right
+                        stuck = true;
                     }
                 }
 
                 if ((_resizeDirection & ResizeDir.Left) == ResizeDir.Left) {
                     if (Math.Abs(_formRect.Left - toRect.Right) <= Math.Abs(_formOffsetRect.Left) && bInsideStick) {
                         _formOffsetRect.X = _formRect.Left - toRect.Right; // Stick left to right
+                        stuck = true;
                     } else if (Math.Abs(_formRect.Left - toRect.Left) <= Math.Abs(_formOffsetRect.Left)) {
                         _formOffsetRect.X = _formRect.Left - toRect.Left; // Stick left to left
+                        stuck = true;
                     }
                 }
             }
+
+            return stuck;
         }
 
         private void StartMove() {
@@ -606,23 +631,6 @@ namespace StickyWindows {
         }
 
         private void Move(Point p) {
-            p = _originalForm.PointToScreen(p);
-            var activeScr = Screen.FromPoint(p); // get the screen from the point !!
-
-            if (!activeScr.WorkingArea.Contains(p)) {
-                p.X = NormalizeInside(p.X, activeScr.WorkingArea.Left, activeScr.WorkingArea.Right);
-                p.Y = NormalizeInside(p.Y, activeScr.WorkingArea.Top, activeScr.WorkingArea.Bottom);
-            }
-
-            p.Offset(-_offsetPoint.X, -_offsetPoint.Y);
-
-            // p is the exact location of the frame - so we can play with it
-            // to detect the new position acording to different bounds
-            _formRect.Location = p; // this is the new positon of the form
-
-            _formOffsetPoint.X = StickGravity + 1; // (more than) maximum gaps
-            _formOffsetPoint.Y = StickGravity + 1;
-
             void MoveWindowChain(StickyWindow window, int distanceX, int distanceY)
             {
                 void MoveChain(HashSet<StickyWindow> windows, StickyWindow window, int distanceX, int distanceY)
@@ -649,6 +657,23 @@ namespace StickyWindows {
                 MoveChain(windows, window, distanceX, distanceY);
             }
 
+            p = _originalForm.PointToScreen(p);
+            var activeScr = Screen.FromPoint(p); // get the screen from the point !!
+
+            if (!activeScr.WorkingArea.Contains(p)) {
+                p.X = NormalizeInside(p.X, activeScr.WorkingArea.Left, activeScr.WorkingArea.Right);
+                p.Y = NormalizeInside(p.Y, activeScr.WorkingArea.Top, activeScr.WorkingArea.Bottom);
+            }
+
+            p.Offset(-_offsetPoint.X, -_offsetPoint.Y);
+
+            // p is the exact location of the frame - so we can play with it
+            // to detect the new position acording to different bounds
+            _formRect.Location = p; // this is the new positon of the form
+
+            _formOffsetPoint.X = StickGravity + 1; // (more than) maximum gaps
+            _formOffsetPoint.Y = StickGravity + 1;
+
             if (IsAnchor(this)) {
                 var distanceX = _formRect.Location.X - _originalForm.Bounds.X;
                 var distanceY = _formRect.Location.Y - _originalForm.Bounds.Y;
@@ -670,15 +695,14 @@ namespace StickyWindows {
                 if (StickToOther) {
                     _anchor = null;
                     foreach (var sw in _stickyWindows) {
+                        // Note that we don't set the anchor if the other window already has this window as its
+                        // anchor, because the bidirectional linkage will make it impossible to detach either
+                        // of the windows from the other (moving either of them away from the other will just
+                        // pull the other window along it, leaving them attached to one another).
                         if (sw != this && sw._anchor != this && IsAnchor(sw))
                         {
-                            // Note that we don't set the anchor if the other window already has this window as its
-                            // anchor, because the bidirectional linkage will make it impossible to detach either
-                            // of the windows from the other (moving either of them away from the other will just
-                            // pull the other window along it, leaving them attached to one another).
                             if (Move_Stick(sw._originalForm.Bounds, true)) {
-                                _anchor = sw;
-                                break;
+                                _anchor ??= sw;
                             }
                         }
                     }

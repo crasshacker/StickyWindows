@@ -207,7 +207,7 @@ namespace StickyWindows {
             StickOnResize       = true;
             StickToScreen       = true;
             StickToOther        = true;
-            StickToOutside      = false;
+            StickToOutside      = true;
             StickToInside       = true;
             ClientAreaMoveKey   = ModifierKey.None;
 

@@ -99,7 +99,7 @@
         <CheckBox
             x:Name="CbStickyCorners"
             Content="Sticky corners"
-            IsChecked="True"
+            IsChecked="False"
             Margin="5" />
 
     </StackPanel>

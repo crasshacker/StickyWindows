@@ -158,7 +158,7 @@ namespace StickyWindows {
 
         /// <summary>
         /// Stick to window corners both horizontally and vertically.
-        /// Default value = true
+        /// Default value = false
         /// </summary>
         public bool StickyCorners { get; set; }
 
@@ -215,7 +215,7 @@ namespace StickyWindows {
             StickToOther        = true;
             StickToOutside      = true;
             StickToInside       = true;
-            StickyCorners       = true;
+            StickyCorners       = false;
             ClientAreaMoveKey   = ModifierKey.None;
 
             _defaultMessageProcessor = DefaultMsgProcessor;
@@ -817,14 +817,39 @@ namespace StickyWindows {
                 }
                 else
                 {
-                    // Stick to whichever edge is closer.  Note that we're using the perpendicular distance between
-                    // the two (infinitely long) lines represented by the parallel-and-close-to-one-another window
-                    // edges, without considering whether the edges (of finite length) are directly across from one
-                    // another at any point.
-                    if (Math.Abs(offsetX) < Math.Abs(offsetY)) { _formOffsetPoint.X = offsetX; }
-                    if (Math.Abs(offsetY) < Math.Abs(offsetX)) { _formOffsetPoint.Y = offsetY; }
+                    // We're within grabbing distance in at least one direction.  We'll grab to whichever edge
+                    // is closest (perpendicularly), but only if the window overlap along the other dimension.
+                    // For example, if we're moving a window upward toward the bottom of an anchor window and we
+                    // get within grabbing range, we'll move up so that our window's top edge aligns with the
+                    // other window's bottom edge, but only if the horizontal extents of the two windows overlap
+                    // (i.e., one window does not lie completely to the left or right of the other).
+
+                    if (Math.Abs(offsetX) < Math.Abs(offsetY)) {
+                        if ((_formRect.Top <= toRect.Bottom) && (_formRect.Bottom >= toRect.Top)) {
+                            _formOffsetPoint.X = offsetX;
+                            stuck = true;
+                        }
+                        else if (offsetY != Int32.MaxValue) {
+                            if ((_formRect.Left <= toRect.Right) && (_formRect.Right >= toRect.Left)) {
+                                _formOffsetPoint.Y = offsetY;
+                                stuck = true;
+                            }
+                        }
+                    }
+                    else {
+                        if ((_formRect.Left <= toRect.Right) && (_formRect.Right >= toRect.Left)) {
+                            _formOffsetPoint.Y = offsetY;
+                            stuck = true;
+                        }
+                        else if (offsetX != Int32.MaxValue) {
+                            if ((_formRect.Top <= toRect.Bottom) && (_formRect.Bottom >= toRect.Top)) {
+                                _formOffsetPoint.X = offsetX;
+                                stuck = true;
+                            }
+                        }
+                    }
                 }
-                stuck = true;
+                // stuck = true;
             }
 
             return stuck;

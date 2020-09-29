@@ -821,8 +821,8 @@ namespace StickyWindows {
                     // the two (infinitely long) lines represented by the parallel-and-close-to-one-another window
                     // edges, without considering whether the edges (of finite length) are directly across from one
                     // another at any point.
-                    if (offsetX < offsetY) { _formOffsetPoint.X = offsetX; }
-                    if (offsetY < offsetX) { _formOffsetPoint.Y = offsetY; }
+                    if (Math.Abs(offsetX) < Math.Abs(offsetY)) { _formOffsetPoint.X = offsetX; }
+                    if (Math.Abs(offsetY) < Math.Abs(offsetX)) { _formOffsetPoint.Y = offsetY; }
                 }
                 stuck = true;
             }

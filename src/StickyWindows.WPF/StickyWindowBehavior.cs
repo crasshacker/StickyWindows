@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-// using System.Windows.Interactivity;
 using Microsoft.Xaml.Behaviors;
 
 namespace StickyWindows.WPF {
@@ -27,6 +26,15 @@ namespace StickyWindows.WPF {
 
         public static readonly DependencyProperty StickOnMoveProperty = DependencyProperty.Register(
             "StickOnMove", typeof(bool), typeof(StickyWindowBehavior), new PropertyMetadata(true, OnStickOnMoveChanged));
+
+        public static readonly DependencyProperty StickToInsideProperty = DependencyProperty.Register(
+            "StickToInside", typeof(bool), typeof(StickyWindowBehavior), new PropertyMetadata(true, OnStickToInsideChanged));
+
+        public static readonly DependencyProperty StickToOutsideProperty = DependencyProperty.Register(
+            "StickToOutside", typeof(bool), typeof(StickyWindowBehavior), new PropertyMetadata(true, OnStickToOutsideChanged));
+
+        public static readonly DependencyProperty StickyCornersProperty = DependencyProperty.Register(
+            "StickyCorners", typeof(bool), typeof(StickyWindowBehavior), new PropertyMetadata(true, OnStickyCornersChanged));
 
         private StickyWindow StickyWindow {
             get => (StickyWindow)GetValue(StickyWindowProperty);
@@ -66,6 +74,21 @@ namespace StickyWindows.WPF {
         public bool StickOnMove {
             get => (bool)GetValue(StickOnMoveProperty);
             set => SetValue(StickOnMoveProperty, value);
+        }
+
+        public bool StickToInside {
+            get => (bool)GetValue(StickToInsideProperty);
+            set => SetValue(StickToInsideProperty, value);
+        }
+
+        public bool StickToOutside {
+            get => (bool)GetValue(StickToOutsideProperty);
+            set => SetValue(StickToOutsideProperty, value);
+        }
+
+        public bool StickyCorners {
+            get => (bool)GetValue(StickyCornersProperty);
+            set => SetValue(StickyCornersProperty, value);
         }
 
         private static void OnWindowTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
@@ -117,6 +140,27 @@ namespace StickyWindows.WPF {
             }
         }
 
+        private static void OnStickToInsideChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            var stickyWindow = (StickyWindow)d.GetValue(StickyWindowProperty);
+            if (stickyWindow != null) {
+                stickyWindow.StickToInside = (bool)e.NewValue;
+            }
+        }
+
+        private static void OnStickToOutsideChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            var stickyWindow = (StickyWindow)d.GetValue(StickyWindowProperty);
+            if (stickyWindow != null) {
+                stickyWindow.StickToOutside = (bool)e.NewValue;
+            }
+        }
+
+        private static void OnStickyCornersChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            var stickyWindow = (StickyWindow)d.GetValue(StickyWindowProperty);
+            if (stickyWindow != null) {
+                stickyWindow.StickyCorners = (bool)e.NewValue;
+            }
+        }
+
         protected override void OnAttached() {
             StickyWindow?.ReleaseHandle();
 
@@ -136,13 +180,18 @@ namespace StickyWindows.WPF {
 
         private void CreateStickyWindow() {
             var stickyWindow = AssociatedObject.CreateStickyWindow();
-            stickyWindow.WindowType = WindowType;
+
+            stickyWindow.WindowType        = WindowType;
             stickyWindow.ClientAreaMoveKey = ClientAreaMoveKey;
-            stickyWindow.StickGravity = StickGravity;
-            stickyWindow.StickToScreen = StickToScreen;
-            stickyWindow.StickToOther = StickToOther;
-            stickyWindow.StickOnResize = StickOnResize;
-            stickyWindow.StickOnMove = StickOnMove;
+            stickyWindow.StickGravity      = StickGravity;
+            stickyWindow.StickToScreen     = StickToScreen;
+            stickyWindow.StickToOther      = StickToOther;
+            stickyWindow.StickOnResize     = StickOnResize;
+            stickyWindow.StickOnMove       = StickOnMove;
+            stickyWindow.StickToInside     = StickToInside;
+            stickyWindow.StickToOutside    = StickToOutside;
+            stickyWindow.StickyCorners     = StickyCorners;
+
             StickyWindow = stickyWindow;
         }
 
@@ -150,6 +199,8 @@ namespace StickyWindows.WPF {
             AssociatedObject.Loaded -= OnLoaded;
             base.OnDetaching();
             StickyWindow?.ReleaseHandle();
+            // Set the type to None to for sticky window deregistration.
+            StickyWindow.WindowType = StickyWindowType.None;
             StickyWindow = null;
         }
     }

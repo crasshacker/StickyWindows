@@ -20,6 +20,9 @@ namespace WinTest {
         private CheckBox checkStickToOthers;
         private CheckBox checkStickOnResize;
         private CheckBox checkStickOnMove;
+        private CheckBox checkStickToInside;
+        private CheckBox checkStickToOutside;
+        private CheckBox checkStickyCorners;
 
         /// <summary>
         /// Required designer variable.
@@ -37,6 +40,9 @@ namespace WinTest {
             checkStickOnResize.Checked = stickyWindow.StickOnResize;
             checkStickToOthers.Checked = stickyWindow.StickToOther;
             checkStickToScreen.Checked = stickyWindow.StickToScreen;
+            checkStickToInside.Checked = stickyWindow.StickToInside;
+            checkStickToOutside.Checked = stickyWindow.StickToOutside;
+            checkStickyCorners.Checked = stickyWindow.StickyCorners;
         }
 
         /// <summary>
@@ -68,6 +74,9 @@ namespace WinTest {
             this.checkStickToOthers = new System.Windows.Forms.CheckBox();
             this.checkStickOnResize = new System.Windows.Forms.CheckBox();
             this.checkStickOnMove = new System.Windows.Forms.CheckBox();
+            this.checkStickToInside = new System.Windows.Forms.CheckBox();
+            this.checkStickToOutside = new System.Windows.Forms.CheckBox();
+            this.checkStickyCorners = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // labelWindowType
@@ -76,7 +85,7 @@ namespace WinTest {
             this.labelWindowType.Name = "labelWindowType";
             this.labelWindowType.Size = new System.Drawing.Size(85, 30);
             this.labelWindowType.TabIndex = 0;
-            this.labelWindowType.Text = "Window Type";
+            this.labelWindowType.Text = "Window type";
             // 
             // comboWindowType
             // 
@@ -99,7 +108,7 @@ namespace WinTest {
             this.labelClientMoveKey.Name = "labelClientMoveKey";
             this.labelClientMoveKey.Size = new System.Drawing.Size(125, 30);
             this.labelClientMoveKey.TabIndex = 1;
-            this.labelClientMoveKey.Text = "Client Area Move Key";
+            this.labelClientMoveKey.Text = "Client area move key";
             // 
             // comboClientMoveKey
             // 
@@ -120,7 +129,7 @@ namespace WinTest {
             this.labelStickGravity.Name = "labelStickGravity";
             this.labelStickGravity.Size = new System.Drawing.Size(85, 30);
             this.labelStickGravity.TabIndex = 2;
-            this.labelStickGravity.Text = "Stick Gravity";
+            this.labelStickGravity.Text = "Stick gravity";
             // 
             // textStickGravity
             // 
@@ -128,49 +137,75 @@ namespace WinTest {
             this.textStickGravity.Name = "textStickGravity";
             this.textStickGravity.Size = new System.Drawing.Size(75, 23);
             this.textStickGravity.TabIndex = 1;
-            this.textStickGravity.Text = "Stick Gravity";
             this.textStickGravity.TextChanged += new System.EventHandler(this.textStickGravity_TextChanged);
             // 
             // checkStickToScreen
             // 
-            this.checkStickToScreen.Location = new System.Drawing.Point(26, 144);
+            this.checkStickToScreen.Location = new System.Drawing.Point(26, 142);
             this.checkStickToScreen.Name = "checkStickToScreen";
             this.checkStickToScreen.Size = new System.Drawing.Size(125, 30);
             this.checkStickToScreen.TabIndex = 2;
-            this.checkStickToScreen.Text = "Stick to Screen";
+            this.checkStickToScreen.Text = "Stick to screen";
             this.checkStickToScreen.CheckedChanged += new System.EventHandler(this.checkStickToScreen_CheckedChanged);
             // 
             // checkStickToOthers
             // 
-            this.checkStickToOthers.Location = new System.Drawing.Point(26, 181);
+            this.checkStickToOthers.Location = new System.Drawing.Point(26, 177);
             this.checkStickToOthers.Name = "checkStickToOthers";
             this.checkStickToOthers.Size = new System.Drawing.Size(125, 30);
             this.checkStickToOthers.TabIndex = 3;
-            this.checkStickToOthers.Text = "Stick to Others";
+            this.checkStickToOthers.Text = "Stick to others";
             this.checkStickToOthers.CheckedChanged += new System.EventHandler(this.checkStickToOthers_CheckedChanged);
             // 
             // checkStickOnResize
             // 
-            this.checkStickOnResize.Location = new System.Drawing.Point(26, 219);
+            this.checkStickOnResize.Location = new System.Drawing.Point(26, 212);
             this.checkStickOnResize.Name = "checkStickOnResize";
             this.checkStickOnResize.Size = new System.Drawing.Size(125, 28);
             this.checkStickOnResize.TabIndex = 4;
-            this.checkStickOnResize.Text = "Stick on Resize";
+            this.checkStickOnResize.Text = "Stick on resize";
             this.checkStickOnResize.CheckedChanged += new System.EventHandler(this.checkStickOnResize_CheckedChanged);
             // 
             // checkStickOnMove
             // 
-            this.checkStickOnMove.Location = new System.Drawing.Point(26, 256);
+            this.checkStickOnMove.Location = new System.Drawing.Point(26, 247);
             this.checkStickOnMove.Name = "checkStickOnMove";
             this.checkStickOnMove.Size = new System.Drawing.Size(125, 29);
             this.checkStickOnMove.TabIndex = 5;
-            this.checkStickOnMove.Text = "Stick On Move";
+            this.checkStickOnMove.Text = "Stick on move";
             this.checkStickOnMove.CheckedChanged += new System.EventHandler(this.checkStickOnMove_CheckedChanged);
+            // 
+            // checkStickToInside
+            // 
+            this.checkStickToInside.Location = new System.Drawing.Point(26, 282);
+            this.checkStickToInside.Name = "checkStickToInside";
+            this.checkStickToInside.Size = new System.Drawing.Size(125, 24);
+            this.checkStickToInside.TabIndex = 6;
+            this.checkStickToInside.Text = "Stick to inside";
+            this.checkStickToInside.CheckedChanged += new System.EventHandler(this.checkStickToInside_CheckedChanged);
+            // 
+            // checkStickToOutside
+            // 
+            this.checkStickToOutside.Location = new System.Drawing.Point(26, 317);
+            this.checkStickToOutside.Name = "checkStickToOutside";
+            this.checkStickToOutside.Size = new System.Drawing.Size(125, 24);
+            this.checkStickToOutside.TabIndex = 7;
+            this.checkStickToOutside.Text = "Stick to outside";
+            this.checkStickToOutside.CheckedChanged += new System.EventHandler(this.checkStickToOutside_CheckedChanged);
+            // 
+            // checkStickyCorners
+            // 
+            this.checkStickyCorners.Location = new System.Drawing.Point(26, 352);
+            this.checkStickyCorners.Name = "checkStickyCorners";
+            this.checkStickyCorners.Size = new System.Drawing.Size(125, 24);
+            this.checkStickyCorners.TabIndex = 8;
+            this.checkStickyCorners.Text = "Sticky corners";
+            this.checkStickyCorners.CheckedChanged += new System.EventHandler(this.checkStickyCorners_CheckedChanged);
             // 
             // Form2
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(6, 16);
-            this.ClientSize = new System.Drawing.Size(292, 308);
+            this.ClientSize = new System.Drawing.Size(292, 400);
             this.Controls.Add(this.labelWindowType);
             this.Controls.Add(this.comboWindowType);
             this.Controls.Add(this.labelClientMoveKey);
@@ -181,6 +216,9 @@ namespace WinTest {
             this.Controls.Add(this.checkStickOnResize);
             this.Controls.Add(this.checkStickToOthers);
             this.Controls.Add(this.checkStickToScreen);
+            this.Controls.Add(this.checkStickToInside);
+            this.Controls.Add(this.checkStickToOutside);
+            this.Controls.Add(this.checkStickyCorners);
             this.Name = "Form2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form2";
@@ -226,6 +264,18 @@ namespace WinTest {
 
         private void checkStickOnMove_CheckedChanged(object sender, EventArgs e) {
             stickyWindow.StickOnMove = checkStickOnMove.Checked;
+        }
+
+        private void checkStickToInside_CheckedChanged(object sender, EventArgs e) {
+            stickyWindow.StickToInside = checkStickToInside.Checked;
+        }
+
+        private void checkStickToOutside_CheckedChanged(object sender, EventArgs e) {
+            stickyWindow.StickToOutside = checkStickToOutside.Checked;
+        }
+
+        private void checkStickyCorners_CheckedChanged(object sender, EventArgs e) {
+            stickyWindow.StickyCorners = checkStickyCorners.Checked;
         }
     }
 }

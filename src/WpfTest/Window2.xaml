@@ -7,9 +7,8 @@
     xmlns:wpfTest="clr-namespace:WpfTest"
     Title="Window2"
     Width="300"
-    Height="300"
-    MaxWidth="400"
-    MaxHeight="400">
+    Height="350">
+
     <Window.Resources>
         <wpfTest:NullableBooleanToBooleanConverter x:Key="NullableBooleanToBooleanConverter" />
         <wpfTest:IntegerToWindowTypeConverter x:Key="IntegerToWindowTypeConverter" />
@@ -18,21 +17,20 @@
     </Window.Resources>
     <i:Interaction.Behaviors>
         <wpf:StickyWindowBehavior
-            WindowType="{Binding ElementName=CbWindowType, Path=SelectedIndex, Converter={StaticResource IntegerToWindowTypeConverter}}"
-            ClientAreaMoveKey="{Binding ElementName=CbClientAreaMoveKey, Path=SelectedItem, Converter={StaticResource StringToModifierKeyConverter}}"
-            StickGravity="{Binding ElementName=CbStickGravity, Path=Text, Converter={StaticResource StringToIntegerConverter}}"
-            StickOnMove="{Binding ElementName=CbStickOnMove, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}"
-            StickOnResize="{Binding ElementName=CbStickOnResize, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}"
-            StickToOther="{Binding ElementName=CbStickToOther, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}"
-            StickToScreen="{Binding ElementName=CbStickToScreen, Path=IsChecked, Converter={StaticResource NullableBooleanToBooleanConverter}}" />
+            WindowType        = "{Binding ElementName=CbWindowType,        Path=SelectedIndex, Converter={StaticResource IntegerToWindowTypeConverter}}"
+            ClientAreaMoveKey = "{Binding ElementName=CbClientAreaMoveKey, Path=SelectedItem,  Converter={StaticResource StringToModifierKeyConverter}}"
+            StickGravity      = "{Binding ElementName=CbStickGravity,      Path=Text,          Converter={StaticResource StringToIntegerConverter}}"
+            StickOnMove       = "{Binding ElementName=CbStickOnMove,       Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
+            StickOnResize     = "{Binding ElementName=CbStickOnResize,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
+            StickToOther      = "{Binding ElementName=CbStickToOther,      Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
+            StickToScreen     = "{Binding ElementName=CbStickToScreen,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
+            StickToInside     = "{Binding ElementName=CbStickToInside,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
+            StickToOutside    = "{Binding ElementName=CbStickToOutside,    Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
+            StickyCorners     = "{Binding ElementName=CbStickyCorners,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}" />
     </i:Interaction.Behaviors>
     <StackPanel>
-
         <Grid Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -62,25 +60,47 @@
             <TextBox Grid.Row="2" Grid.Column="1" x:Name="CbStickGravity" Margin="0,5" Width="50">20</TextBox>
         </Grid>
 
-        <CheckBox Grid.Row="3" Grid.RowSpan="2"
+        <CheckBox
             x:Name="CbStickToScreen"
             Content="Stick to screen"
             IsChecked="True"
             Margin="5" />
-        <CheckBox Grid.Row="4" Grid.RowSpan="2"
+
+        <CheckBox
             x:Name="CbStickToOther"
             Content="Stick to other"
             IsChecked="True"
             Margin="5" />
-        <CheckBox Grid.Row="5" Grid.RowSpan="2"
+
+        <CheckBox
             x:Name="CbStickOnResize"
             Content="Stick on resize"
             IsChecked="True"
             Margin="5" />
-        <CheckBox Grid.Row="6" Grid.RowSpan="2"
+
+        <CheckBox
             x:Name="CbStickOnMove"
             Content="Stick on move"
             IsChecked="True"
             Margin="5" />
+
+        <CheckBox
+            x:Name="CbStickToInside"
+            Content="Stick to inside edges"
+            IsChecked="True"
+            Margin="5" />
+
+        <CheckBox
+            x:Name="CbStickToOutside"
+            Content="Stick to outside edges"
+            IsChecked="True"
+            Margin="5" />
+
+        <CheckBox
+            x:Name="CbStickyCorners"
+            Content="Sticky corners"
+            IsChecked="True"
+            Margin="5" />
+
     </StackPanel>
 </Window>

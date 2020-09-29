@@ -2,40 +2,60 @@
 # StickyWindows
 
 **Note:** This is a fork of this [StickyWindows GitHub repo](https://github.com/thoemmi/StickyWindows), which I've
-retargeted to .NET Core 3.1 and improved in a few ways:
+retargeted to .NET Core 3.1 and made a number of changes to, including significant (breaking) changes to the API.
+Because of the significance of the API changes, I plan to manage this as a separate project rather than making pull
+requests of the original StickyWindows project to incorporate these changes.
 
-1. Resizing a WPF window in certain ways, for example by dragging the right edge of the window leftward past the
-window's left edge very quickly, would cause the code to calculate and then (mis-)use a negative window width,
-resulting in an exception being thrown (possibly leading to an application crash).  This issue has been resolved.
+This library provides a means for a WinForms or WPF application to mark one or more of its application windows as
+sticky, so that they stick to other windows (of the same application instance) or to the edge of the screen when
+moved sufficiently close.  This is done by associating a StickyWindow instance with each window that should stick
+to others (or the screen edge) when close, as well as with each window that should serve as an "anchor" that such
+sticky windows can be stuck to.  Various properties on the StickyWindow object can be set to control exactly how
+the window behaves with regard to stickiness:
 
-2. A StickyWindowType parameter has been added to the StickyWindow constructor.  This value determines the manner
-in which the window behaves with regard to stickiness, i.e., whether it sticks to other windows when moved close
-to them, whether it continues to stick when such an "anchor" window is moved, and whether the window serves as an
-anchor to which other windows will stick.  The WindowType property of a StickyWindow can be changed at any time to
-alter the way that window behaves with regard to stickiness.
+* WindowType        - Determines the overall sticky behavior of this window (see Sticky Window Types below).
+* StickGravity      - The distance (in pixels) the window will move to stick to an anchor window or screen edge.
+* StickOnMove       - If true, the window should jump to nearby windows or the screen edge when being moved.
+* StickOnResize     - If true, the window should jump to nearby windows or the screen edge when being resized.
+* StickToScreen     - If true, the window should stick to the edge of the screen when moved close to it.
+* StickToOther      - If true, the window should stick to other nearby windows when moved close to them.
+* StickToOutside    - If true, the window should stick to the outside edge of another window.
+* StickToInside     - If true, the window should stick to the inside edge of another window.
+* StickyCorners     - If true, the window should stick to corners of another window.
+* ClientAreaMoveKey - Specifies whether Ctrl or Shift keys allow dragging a window's from within its client area.
 
-3. The RegisterExternalForm methods have been removed.  All StickyWindow instances are automatically registered.
-To unregister a window so that it no longer participates with other StickyWindows, set its WindowType propery to
-StickyWindowType.None.  To reregister the window simply change its WindowType to the desired value.
+The default WindowType is Sticky, the default StickGravity is 20, the default ClientAreaMoveKey is
+StickyWindows.ModifierKey.None, and the default StickyCorners value is false.  The default value for all other
+properties is true.
 
-4. The private static _stickGap field of the StickyWindow class has been replaced by a new public instance property
-named StickGravity.  This property specifies the stickiness strength, and is expressed as the number of pixels away
-from an anchor window a sticky window must be moved in order to have it become stuck to or unstuck from that window.
+## Usage
 
-5. Sticky windows can be moved by dragging the mouse from within the client area of the window is a specified
-modifier key (Control or Shift) is held down when the move is initiated.  By default moving a window by dragging
-from within the client area is disabled (the ClientAreaMoveKey property is set to ModifierKey.None).  Set the
-ClientAreaMoveKey property to either ModifierKey.Shift or ModifierKey.Control to enable it.
+To make a window sticky, associate a StickyWindow instance with the window:
+
+WinForms:
+
+    using StickyWindows;    // requires StickyWindows.DLL
+
+    var stickyWindow = new StickyWindow(myForm, StickyWindowType.Sticky);
+    // Set stickyWindow properties appropriately here...
+
+WPF:
+
+    using StickyWindows;        // requires StickyWindows.DLL
+    using StickyWindows.WPF;    // requires StickyWindows.WPF.DLL
+
+    var stickyWindow = myWindow.CreateStickyWindow(StickyWindowType.Sticky);
+    // Set stickyWindow properties appropriately here...
 
 ## Sticky Window Types
 
-A new StickyWindowType enumeration indicates the type of a sticky window, which in turn determines its behavior with
-regard to stickiness.  Available sticky types are:
+A StickyWindow's WindowType property (of type StickyWindowType) determines the window's behavior with regard to other
+StickyWindows.  The StickyWindowType enumeration values are:
 
-* None - The window does not grab or stick to other windows, nor does it act as an anchor for others to stick to.
-* Anchor - A window which Grabby and Sticky windows will latch onto when they are moved within range of it.
-* Grabby - A window that attaches to an anchor when moved close to it, but doesn't move with the anchor window.
-* Sticky - A grabby window that, once it grabs an anchor window, remains stuck to it when the anchor window is moved.
+* None     - The window does not grab or stick to other windows, nor does it act as an anchor for others to stick to.
+* Anchor   - A window which Grabby and Sticky windows will latch onto when they are moved within range of it.
+* Grabby   - A window that attaches to an anchor when moved close to it, but doesn't move with the anchor window.
+* Sticky   - A grabby window that, once it grabs an anchor window, remains stuck to it when the anchor window is moved.
 * Cohesive - A sticky window that also operates as an anchor, so that other sticky windows will stick to it.
 
 A StickyWindowType of Anchor indicates that the window will attract grabby and sticky windows when they move close
@@ -49,8 +69,4 @@ is moved.  However, if window A is moved it does not carry window B with it, eve
 if it did, there would be no way to detach the windows from one another.  Thus, whether a Cohesive window behaves
 as an Anchor or as a Sticky window depends upon whether another window was stuck to it, or whether it was instead
 stuck to another window.
-
-For details on the original StickyWindows project, see the
-[README](https://github.com/thoemmi/StickyWindows/blob/develop/README.md)
-in the repository from which this repository was forked.
 

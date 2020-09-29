@@ -157,6 +157,12 @@ namespace StickyWindows {
         public bool StickToInside { get; set; }
 
         /// <summary>
+        /// Stick to window corners both horizontally and vertically.
+        /// Default value = true
+        /// </summary>
+        public bool StickyCorners { get; set; }
+
+        /// <summary>
         /// Specifies the key(s) that, if pressed/down when the left mouse button is clicked in the client area
         /// of the window, allows the window to be dragged as if the mouse were dragging the window's title bar.
         /// A value of ModifierKey.None disables dragging from the window's client area.
@@ -209,6 +215,7 @@ namespace StickyWindows {
             StickToOther        = true;
             StickToOutside      = true;
             StickToInside       = true;
+            StickyCorners       = true;
             ClientAreaMoveKey   = ModifierKey.None;
 
             _defaultMessageProcessor = DefaultMsgProcessor;
@@ -749,8 +756,8 @@ namespace StickyWindows {
         private bool Move_Stick(Rectangle toRect, bool stickToInside = true, bool stickToOutside = true) {
             bool stuck = false;
 
-            int offsetX = 0;
-            int offsetY = 0;
+            int offsetX = Int32.MaxValue;
+            int offsetY = Int32.MaxValue;
 
             // compare distance from toRect to formRect
             // and then with the found distances, compare the most closed position
@@ -802,10 +809,21 @@ namespace StickyWindows {
                 }
             }
 
-            if ((offsetX != 0) || (offsetY != 0))
-            {
-                if (offsetX != 0) { _formOffsetPoint.X = offsetX; }
-                if (offsetY != 0) { _formOffsetPoint.Y = offsetY; }
+            if ((offsetX != Int32.MaxValue) || (offsetY != Int32.MaxValue)) {
+                if (StickyCorners) {
+                    // Stick in both the X and Y directions if we're sufficiently close.
+                    if (offsetX != Int32.MaxValue) { _formOffsetPoint.X = offsetX; }
+                    if (offsetY != Int32.MaxValue) { _formOffsetPoint.Y = offsetY; }
+                }
+                else
+                {
+                    // Stick to whichever edge is closer.  Note that we're using the perpendicular distance between
+                    // the two (infinitely long) lines represented by the parallel-and-close-to-one-another window
+                    // edges, without considering whether the edges (of finite length) are directly across from one
+                    // another at any point.
+                    if (offsetX < offsetY) { _formOffsetPoint.X = offsetX; }
+                    if (offsetY < offsetX) { _formOffsetPoint.Y = offsetY; }
+                }
                 stuck = true;
             }
 

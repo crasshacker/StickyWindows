@@ -160,7 +160,7 @@ namespace StickyWindows {
         /// Stick to window corners both horizontally and vertically.
         /// Default value = false
         /// </summary>
-        public bool StickyCorners { get; set; }
+        public bool StickToCorners { get; set; }
 
         /// <summary>
         /// Specifies the key(s) that, if pressed/down when the left mouse button is clicked in the client area
@@ -215,7 +215,7 @@ namespace StickyWindows {
             StickToOther        = true;
             StickToOutside      = true;
             StickToInside       = true;
-            StickyCorners       = false;
+            StickToCorners      = true;
             ClientAreaMoveKey   = ModifierKey.None;
 
             _defaultMessageProcessor = DefaultMsgProcessor;
@@ -810,7 +810,7 @@ namespace StickyWindows {
             }
 
             if ((offsetX != Int32.MaxValue) || (offsetY != Int32.MaxValue)) {
-                if (StickyCorners) {
+                if (StickToCorners) {
                     // Stick in both the X and Y directions if we're sufficiently close.
                     if (offsetX != Int32.MaxValue) { _formOffsetPoint.X = offsetX; }
                     if (offsetY != Int32.MaxValue) { _formOffsetPoint.Y = offsetY; }

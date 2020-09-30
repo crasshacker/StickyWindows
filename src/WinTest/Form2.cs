@@ -22,7 +22,7 @@ namespace WinTest {
         private CheckBox checkStickOnMove;
         private CheckBox checkStickToInside;
         private CheckBox checkStickToOutside;
-        private CheckBox checkStickyCorners;
+        private CheckBox checkStickToCorners;
 
         /// <summary>
         /// Required designer variable.
@@ -42,7 +42,7 @@ namespace WinTest {
             checkStickToScreen.Checked = stickyWindow.StickToScreen;
             checkStickToInside.Checked = stickyWindow.StickToInside;
             checkStickToOutside.Checked = stickyWindow.StickToOutside;
-            checkStickyCorners.Checked = stickyWindow.StickyCorners;
+            checkStickToCorners.Checked = stickyWindow.StickToCorners;
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace WinTest {
             this.checkStickOnMove = new System.Windows.Forms.CheckBox();
             this.checkStickToInside = new System.Windows.Forms.CheckBox();
             this.checkStickToOutside = new System.Windows.Forms.CheckBox();
-            this.checkStickyCorners = new System.Windows.Forms.CheckBox();
+            this.checkStickToCorners = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // labelWindowType
@@ -193,14 +193,14 @@ namespace WinTest {
             this.checkStickToOutside.Text = "Stick to outside";
             this.checkStickToOutside.CheckedChanged += new System.EventHandler(this.checkStickToOutside_CheckedChanged);
             // 
-            // checkStickyCorners
+            // checkStickToCorners
             // 
-            this.checkStickyCorners.Location = new System.Drawing.Point(26, 352);
-            this.checkStickyCorners.Name = "checkStickyCorners";
-            this.checkStickyCorners.Size = new System.Drawing.Size(125, 24);
-            this.checkStickyCorners.TabIndex = 8;
-            this.checkStickyCorners.Text = "Sticky corners";
-            this.checkStickyCorners.CheckedChanged += new System.EventHandler(this.checkStickyCorners_CheckedChanged);
+            this.checkStickToCorners.Location = new System.Drawing.Point(26, 352);
+            this.checkStickToCorners.Name = "checkStickToCorners";
+            this.checkStickToCorners.Size = new System.Drawing.Size(125, 24);
+            this.checkStickToCorners.TabIndex = 8;
+            this.checkStickToCorners.Text = "Sticky corners";
+            this.checkStickToCorners.CheckedChanged += new System.EventHandler(this.checkStickToCorners_CheckedChanged);
             // 
             // Form2
             // 
@@ -218,7 +218,7 @@ namespace WinTest {
             this.Controls.Add(this.checkStickToScreen);
             this.Controls.Add(this.checkStickToInside);
             this.Controls.Add(this.checkStickToOutside);
-            this.Controls.Add(this.checkStickyCorners);
+            this.Controls.Add(this.checkStickToCorners);
             this.Name = "Form2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form2";
@@ -274,8 +274,8 @@ namespace WinTest {
             stickyWindow.StickToOutside = checkStickToOutside.Checked;
         }
 
-        private void checkStickyCorners_CheckedChanged(object sender, EventArgs e) {
-            stickyWindow.StickyCorners = checkStickyCorners.Checked;
+        private void checkStickToCorners_CheckedChanged(object sender, EventArgs e) {
+            stickyWindow.StickToCorners = checkStickToCorners.Checked;
         }
     }
 }

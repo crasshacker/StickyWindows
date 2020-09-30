@@ -21,12 +21,11 @@ the window behaves with regard to stickiness:
 * StickToOther      - If true, the window should stick to other nearby windows when moved close to them.
 * StickToOutside    - If true, the window should stick to the outside edge of another window.
 * StickToInside     - If true, the window should stick to the inside edge of another window.
-* StickyCorners     - If true, the window should stick to corners of another window.
+* StickToCorners    - If true, the window should stick to corners of another window.
 * ClientAreaMoveKey - Specifies whether Ctrl or Shift keys allow dragging a window's from within its client area.
 
-The default WindowType is Sticky, the default StickGravity is 20, the default ClientAreaMoveKey is
-StickyWindows.ModifierKey.None, and the default StickyCorners value is false.  The default value for all other
-properties is true.
+The default WindowType is StickyWindowType.Sticky, the default StickGravity is 20, and the default ClientAreaMoveKey
+is StickyWindow.ModifierKey.None; the default value for all other properties is true.
 
 ## Usage
 

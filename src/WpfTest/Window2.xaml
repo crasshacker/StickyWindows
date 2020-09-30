@@ -26,7 +26,7 @@
             StickToScreen     = "{Binding ElementName=CbStickToScreen,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
             StickToInside     = "{Binding ElementName=CbStickToInside,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
             StickToOutside    = "{Binding ElementName=CbStickToOutside,    Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
-            StickyCorners     = "{Binding ElementName=CbStickyCorners,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}" />
+            StickToCorners    = "{Binding ElementName=CbStickToCorners,    Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}" />
     </i:Interaction.Behaviors>
     <StackPanel>
         <Grid Margin="5">
@@ -97,9 +97,9 @@
             Margin="5" />
 
         <CheckBox
-            x:Name="CbStickyCorners"
+            x:Name="CbStickToCorners"
             Content="Sticky corners"
-            IsChecked="False"
+            IsChecked="True"
             Margin="5" />
 
     </StackPanel>

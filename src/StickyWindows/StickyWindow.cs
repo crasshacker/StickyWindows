@@ -814,6 +814,7 @@ namespace StickyWindows {
                     // Stick in both the X and Y directions if we're sufficiently close.
                     if (offsetX != Int32.MaxValue) { _formOffsetPoint.X = offsetX; }
                     if (offsetY != Int32.MaxValue) { _formOffsetPoint.Y = offsetY; }
+                    stuck = true;
                 }
                 else
                 {

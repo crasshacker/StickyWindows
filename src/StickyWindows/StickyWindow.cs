@@ -77,8 +77,7 @@ namespace StickyWindows {
         // Public types
 
         [Flags]
-        public enum ModifierKey
-        {
+        public enum ModifierKey {
             None    = 0,
             Shift   = 4, // Win32.MK.MK_SHIFT    - DOES NOT WORK WITH WinForms!
             Control = 8  // Win32.MK.MK_CONTROL
@@ -94,21 +93,19 @@ namespace StickyWindows {
 
         private StickyWindowType _windowType;
 
-        public StickyWindowType WindowType
-        {
+        public StickyWindowType WindowType {
             get => _windowType;
 
-            set
-            {
-                if (value == StickyWindowType.None && _windowType != StickyWindowType.None)
-                {
+            set {
+                var oldType = _windowType;
+                _windowType = value;
+
+                if (_windowType == StickyWindowType.None && oldType != StickyWindowType.None) {
                     Unregister();
                 }
-                else if (value != StickyWindowType.None && _windowType == StickyWindowType.None)
-                {
+                else if (_windowType != StickyWindowType.None && oldType == StickyWindowType.None) {
                     Register();
                 }
-                _windowType = value;
             }
         }
 
@@ -199,8 +196,7 @@ namespace StickyWindows {
         /// <param name="form">Form to be made sticky</param>
         /// <param name="windowType">The type of sticky window</param>
         public StickyWindow(BaseFormAdapter form, StickyWindowType windowType) {
-            WindowType = windowType;
-
+            _windowType = windowType;
             _originalForm = form;
 
             _formRect       = Rectangle.Empty;
@@ -224,42 +220,6 @@ namespace StickyWindows {
             _messageProcessor        = _defaultMessageProcessor;
 
             AssignHandle(_originalForm.Handle);
-        }
-
-
-        /// <summary>
-        /// If the window is a Sticky (not Anchor) window and is within StickGravity's distance of an Anchor
-        /// window, stick the window to the anchor window just as if the window were being moved interactively.
-        /// </summary>
-        public void Stick()
-        {
-            if (IsGrabby(this)) {
-                _formRect = _originalForm.Bounds;
-
-                if (StickToScreen) {
-                    Rectangle bounds = _originalForm.Bounds;
-                    Point p = new Point(bounds.Left, bounds.Top);
-                    p = _originalForm.PointToScreen(p);
-                    var activeScr = Screen.FromPoint(p);
-                    Move_Stick(activeScr.WorkingArea);
-                }
-
-                if (StickToOther) {
-                    _anchor = null;
-                    foreach (var sw in _stickyWindows) {
-                        // Note that we don't set the anchor if the other window already has this window as its
-                        // anchor, because the bidirectional linkage will make it impossible to detach either
-                        // of the windows from the other (moving either of them away from the other will just
-                        // pull the other window along it, leaving them attached to one another).
-                        if (sw != this && sw._anchor != this && IsAnchor(sw))
-                        {
-                            if (Move_Stick(sw._originalForm.Bounds, StickToInside, StickToOutside)) {
-                                _anchor ??= sw;
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.Demand, Name = "FullTrust")]
@@ -291,8 +251,7 @@ namespace StickyWindows {
                         _originalForm.Activate();
                         Point mousePoint = new Point((short)Win32.Bit.LoWord((int)m.LParam),
                                                      (short)Win32.Bit.HiWord((int)m.LParam));
-                        if (Win32.ClientToScreen(_originalForm.Handle, out Win32.POINT point))
-                        {
+                        if (Win32.ClientToScreen(_originalForm.Handle, out Win32.POINT point)) {
                             mousePoint.X += point.X;
                             mousePoint.Y += point.Y;
                             if (OnClientLeftButtonDown(mousePoint)) {
@@ -386,8 +345,7 @@ namespace StickyWindows {
                 _formRect = _originalForm.Bounds;
                 _formOriginalRect = _originalForm.Bounds; // save the old bounds
 
-                if (!_originalForm.Capture) // start capturing messages
-                {
+                if (!_originalForm.Capture) { // start capturing messages
                     _originalForm.Capture = true;
                 }
 
@@ -488,8 +446,7 @@ namespace StickyWindows {
                 if (StickToOther) {
                     _anchor = null;
                     foreach (var sw in _stickyWindows) {
-                        if (sw != this && sw._anchor != this && IsAnchor(sw))
-                        {
+                        if (sw != this && sw._anchor != this && IsAnchor(sw)) {
                             if (Resize_Stick(sw._originalForm.Bounds, StickToInside, StickToOutside)) {
                                 _anchor ??= sw;
                             }
@@ -551,7 +508,6 @@ namespace StickyWindows {
             }
 
             _originalForm.Bounds = _formRect;
-            Stick();
         }
 
         private bool Resize_Stick(Rectangle toRect, bool stickToInside = true, bool stickToOutside = true) {
@@ -608,8 +564,7 @@ namespace StickyWindows {
             _formRect = _originalForm.Bounds;
             _formOriginalRect = _originalForm.Bounds; // save original position
 
-            if (!_originalForm.Capture) // start capturing messages
-            {
+            if (!_originalForm.Capture) { // start capturing messages
                 _originalForm.Capture = true;
             }
 
@@ -652,10 +607,8 @@ namespace StickyWindows {
         }
 
         private void Move(Point p) {
-            void MoveWindowChain(StickyWindow window, int distanceX, int distanceY)
-            {
-                void MoveChain(HashSet<StickyWindow> windows, StickyWindow window, int distanceX, int distanceY)
-                {
+            void MoveWindowChain(StickyWindow window, int distanceX, int distanceY) {
+                void MoveChain(HashSet<StickyWindow> windows, StickyWindow window, int distanceX, int distanceY) {
                     windows.Add(window);
 
                     var bounds = window._originalForm.Bounds;
@@ -707,8 +660,7 @@ namespace StickyWindows {
                 }
             }
 
-            if (IsGrabby(this))
-            {
+            if (IsGrabby(this)) {
                 if (StickToScreen) {
                     Move_Stick(activeScr.WorkingArea);
                 }
@@ -720,8 +672,7 @@ namespace StickyWindows {
                         // anchor, because the bidirectional linkage will make it impossible to detach either
                         // of the windows from the other (moving either of them away from the other will just
                         // pull the other window along it, leaving them attached to one another).
-                        if (sw != this && sw._anchor != this && IsAnchor(sw))
-                        {
+                        if (sw != this && sw._anchor != this && IsAnchor(sw)) {
                             if (Move_Stick(sw._originalForm.Bounds, StickToInside, StickToOutside)) {
                                 _anchor ??= sw;
                             }
@@ -816,8 +767,7 @@ namespace StickyWindows {
                     if (offsetY != Int32.MaxValue) { _formOffsetPoint.Y = offsetY; }
                     stuck = true;
                 }
-                else
-                {
+                else {
                     // We're within grabbing distance in at least one direction.  We'll grab to whichever edge
                     // is closest (perpendicularly), but only if the window overlap along the other dimension.
                     // For example, if we're moving a window upward toward the bottom of an anchor window and we

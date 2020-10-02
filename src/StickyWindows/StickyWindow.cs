@@ -822,11 +822,11 @@ namespace StickyWindows {
         }
 
         private void Register() {
-            _stickyWindows.Add(this);
+            AssignHandle(_originalForm.Handle);
         }
 
         private void Unregister() {
-            _stickyWindows.Remove(this);
+            ReleaseHandle();
             _anchor = null;
         }
 

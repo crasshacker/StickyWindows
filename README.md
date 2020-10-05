@@ -46,6 +46,10 @@ WPF:
     var stickyWindow = myWindow.CreateStickyWindow(StickyWindowType.Sticky);
     // Set stickyWindow properties appropriately here...
 
+If you set a window's position programmatically you can call the `Stick()` method after positioning the window to
+force the window to behave as if it were moved to that position with the mouse.  In other words, if the window is
+grabby/sticky and is positioned close enough to one or more anchor windows, it will attach itself to those windows.
+
 ## Sticky Window Types
 
 A StickyWindow's WindowType property (of type StickyWindowType) determines the window's behavior with regard to other

@@ -106,6 +106,9 @@ namespace StickyWindows {
                 else if (_windowType != StickyWindowType.None && oldType == StickyWindowType.None) {
                     Register();
                 }
+                if (! IsGrabby(oldType) && IsGrabby(_windowType)) {
+                    Stick();
+                }
             }
         }
 
@@ -220,6 +223,17 @@ namespace StickyWindows {
             _messageProcessor        = _defaultMessageProcessor;
 
             AssignHandle(_originalForm.Handle);
+        }
+
+        /// <summary>
+        /// If the window is a Sticky (not Anchor) window and is within StickGravity's distance of an Anchor
+        /// window, stick the window to the anchor window just as if the window were being moved interactively.
+        /// </summary>
+        public void Stick()
+        {
+            if (IsGrabby(this)) {
+                Move(null);
+            }
         }
 
         [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.Demand, Name = "FullTrust")]
@@ -508,6 +522,7 @@ namespace StickyWindows {
             }
 
             _originalForm.Bounds = _formRect;
+            Stick();
         }
 
         private bool Resize_Stick(Rectangle toRect, bool stickToInside = true, bool stickToOutside = true) {
@@ -606,7 +621,7 @@ namespace StickyWindows {
             Cancel();
         }
 
-        private void Move(Point p) {
+        private void Move(Point? point) {
             void MoveWindowChain(StickyWindow window, int distanceX, int distanceY) {
                 void MoveChain(HashSet<StickyWindow> windows, StickyWindow window, int distanceX, int distanceY) {
                     windows.Add(window);
@@ -631,19 +646,31 @@ namespace StickyWindows {
                 MoveChain(windows, window, distanceX, distanceY);
             }
 
-            p = _originalForm.PointToScreen(p);
-            var activeScr = Screen.FromPoint(p); // get the screen from the point !!
+            Screen activeScr = null;
 
-            if (!activeScr.WorkingArea.Contains(p)) {
-                p.X = NormalizeInside(p.X, activeScr.WorkingArea.Left, activeScr.WorkingArea.Right);
-                p.Y = NormalizeInside(p.Y, activeScr.WorkingArea.Top, activeScr.WorkingArea.Bottom);
+            if (point == null)
+            {
+                // TODO - Do this correctly; this code is almost certainly wrong.
+                _formRect = _originalForm.Bounds;
+                Point p = new Point(_formRect.X, _formRect.Y);
+                activeScr = Screen.FromPoint(p);
             }
+            else
+            {
+                Point p = _originalForm.PointToScreen((Point)point);
+                activeScr = Screen.FromPoint(p);
 
-            p.Offset(-_offsetPoint.X, -_offsetPoint.Y);
+                if (!activeScr.WorkingArea.Contains(p)) {
+                    p.X = NormalizeInside(p.X, activeScr.WorkingArea.Left, activeScr.WorkingArea.Right);
+                    p.Y = NormalizeInside(p.Y, activeScr.WorkingArea.Top, activeScr.WorkingArea.Bottom);
+                }
 
-            // p is the exact location of the frame - so we can play with it
-            // to detect the new position acording to different bounds
-            _formRect.Location = p; // this is the new positon of the form
+                p.Offset(-_offsetPoint.X, -_offsetPoint.Y);
+
+                // p is the exact location of the frame - so we can play with it
+                // to detect the new position acording to different bounds
+                _formRect.Location = p; // this is the new positon of the form
+            }
 
             _formOffsetPoint.X = StickGravity + 1; // (more than) maximum gaps
             _formOffsetPoint.Y = StickGravity + 1;
@@ -830,14 +857,16 @@ namespace StickyWindows {
             _anchor = null;
         }
 
-        private static bool IsAnchor(StickyWindow window) => window.WindowType == StickyWindowType.Anchor
-                                                          || window.WindowType == StickyWindowType.Cohesive;
+        private static bool IsAnchor(StickyWindowType windowType) => windowType == StickyWindowType.Anchor
+                                                                  || windowType == StickyWindowType.Cohesive;
+        private static bool IsSticky(StickyWindowType windowType) => windowType == StickyWindowType.Sticky
+                                                                  || windowType == StickyWindowType.Cohesive;
+        private static bool IsGrabby(StickyWindowType windowType) => windowType == StickyWindowType.Grabby
+                                                                  || windowType == StickyWindowType.Sticky
+                                                                  || windowType == StickyWindowType.Cohesive;
 
-        private static bool IsSticky(StickyWindow window) => window.WindowType == StickyWindowType.Sticky
-                                                          || window.WindowType == StickyWindowType.Cohesive;
-
-        private static bool IsGrabby(StickyWindow window) => window.WindowType == StickyWindowType.Grabby
-                                                          || window.WindowType == StickyWindowType.Sticky
-                                                          || window.WindowType == StickyWindowType.Cohesive;
+        private static bool IsAnchor(StickyWindow window) => IsAnchor(window.WindowType);
+        private static bool IsSticky(StickyWindow window) => IsSticky(window.WindowType);
+        private static bool IsGrabby(StickyWindow window) => IsGrabby(window.WindowType);
     }
 }

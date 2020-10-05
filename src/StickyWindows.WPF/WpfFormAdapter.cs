@@ -103,8 +103,6 @@ namespace StickyWindows.WPF {
         }
 
         private Point GetWindowOrigin() {
-            // TODO: alla prima invocazione far andare in cache per migliorare perf ed evitare errori di approx
-            //return new Point(-4, -28);
             if (!_origin.HasValue) {
                 var currentWinPointConverted = FromRelativeToDevice(-_window.Left, -_window.Top, _window);
                 var locationFromScreen = PointToScreen(ToWinPoint(currentWinPointConverted));

@@ -12,8 +12,8 @@ namespace StickyWindows.WPF {
         public static readonly DependencyProperty ClientAreaMoveKeyProperty = DependencyProperty.Register(
             "ClientAreaMoveKey", typeof(StickyWindow.ModifierKey), typeof(StickyWindowBehavior), new PropertyMetadata(default(StickyWindow.ModifierKey), OnClientAreaMoveKeyChanged));
 
-        public static readonly DependencyProperty StickGravityProperty = DependencyProperty.Register(
-            "StickGravity", typeof(int), typeof(StickyWindowBehavior), new PropertyMetadata(20, OnStickGravityChanged));
+        public static readonly DependencyProperty StickinessProperty = DependencyProperty.Register(
+            "Stickiness", typeof(int), typeof(StickyWindowBehavior), new PropertyMetadata(20, OnStickinessChanged));
 
         public static readonly DependencyProperty StickToScreenProperty = DependencyProperty.Register(
             "StickToScreen", typeof(bool), typeof(StickyWindowBehavior), new PropertyMetadata(true, OnStickToScreenChanged));
@@ -51,9 +51,9 @@ namespace StickyWindows.WPF {
             set => SetValue(ClientAreaMoveKeyProperty, value);
         }
 
-        public int StickGravity {
-            get => (int)GetValue(StickGravityProperty);
-            set => SetValue(StickGravityProperty, value);
+        public int Stickiness {
+            get => (int)GetValue(StickinessProperty);
+            set => SetValue(StickinessProperty, value);
         }
 
         public bool StickToScreen {
@@ -105,10 +105,10 @@ namespace StickyWindows.WPF {
             }
         }
 
-        private static void OnStickGravityChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnStickinessChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             var stickyWindow = (StickyWindow)d.GetValue(StickyWindowProperty);
             if (stickyWindow != null) {
-                stickyWindow.StickGravity = (int)e.NewValue;
+                stickyWindow.Stickiness = (int)e.NewValue;
             }
         }
 
@@ -183,7 +183,7 @@ namespace StickyWindows.WPF {
 
             stickyWindow.WindowType        = WindowType;
             stickyWindow.ClientAreaMoveKey = ClientAreaMoveKey;
-            stickyWindow.StickGravity      = StickGravity;
+            stickyWindow.Stickiness        = Stickiness;
             stickyWindow.StickToScreen     = StickToScreen;
             stickyWindow.StickToOther      = StickToOther;
             stickyWindow.StickOnResize     = StickOnResize;

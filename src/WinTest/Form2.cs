@@ -14,8 +14,8 @@ namespace WinTest {
         private ComboBox comboWindowType;
         private Label    labelClientMoveKey;
         private ComboBox comboClientMoveKey;
-        private Label    labelStickGravity;
-        private TextBox  textStickGravity;
+        private Label    labelStickiness;
+        private TextBox  textStickiness;
         private CheckBox checkStickToScreen;
         private CheckBox checkStickToOthers;
         private CheckBox checkStickOnResize;
@@ -35,7 +35,7 @@ namespace WinTest {
             comboWindowType.SelectedIndex = (int) stickyWindow.WindowType;
             comboClientMoveKey.SelectedItem = Enum.GetName(typeof(StickyWindow.ModifierKey),
                                                             stickyWindow.ClientAreaMoveKey);
-            textStickGravity.Text = stickyWindow.StickGravity.ToString();
+            textStickiness.Text = stickyWindow.Stickiness.ToString();
             checkStickOnMove.Checked = stickyWindow.StickOnMove;
             checkStickOnResize.Checked = stickyWindow.StickOnResize;
             checkStickToOthers.Checked = stickyWindow.StickToOther;
@@ -68,8 +68,8 @@ namespace WinTest {
             this.comboWindowType = new System.Windows.Forms.ComboBox();
             this.labelClientMoveKey = new System.Windows.Forms.Label();
             this.comboClientMoveKey = new System.Windows.Forms.ComboBox();
-            this.labelStickGravity = new System.Windows.Forms.Label();
-            this.textStickGravity = new System.Windows.Forms.TextBox();
+            this.labelStickiness = new System.Windows.Forms.Label();
+            this.textStickiness = new System.Windows.Forms.TextBox();
             this.checkStickToScreen = new System.Windows.Forms.CheckBox();
             this.checkStickToOthers = new System.Windows.Forms.CheckBox();
             this.checkStickOnResize = new System.Windows.Forms.CheckBox();
@@ -123,21 +123,21 @@ namespace WinTest {
             this.comboClientMoveKey.TabIndex = 0;
             this.comboClientMoveKey.SelectedIndexChanged += new System.EventHandler(this.comboClientMoveKey_SelectionChanged);
             // 
-            // labelStickGravity
+            // labelStickiness
             // 
-            this.labelStickGravity.Location = new System.Drawing.Point(26, 107);
-            this.labelStickGravity.Name = "labelStickGravity";
-            this.labelStickGravity.Size = new System.Drawing.Size(85, 30);
-            this.labelStickGravity.TabIndex = 2;
-            this.labelStickGravity.Text = "Stick gravity";
+            this.labelStickiness.Location = new System.Drawing.Point(26, 107);
+            this.labelStickiness.Name = "labelStickiness";
+            this.labelStickiness.Size = new System.Drawing.Size(85, 30);
+            this.labelStickiness.TabIndex = 2;
+            this.labelStickiness.Text = "Stick gravity";
             // 
-            // textStickGravity
+            // textStickiness
             // 
-            this.textStickGravity.Location = new System.Drawing.Point(157, 107);
-            this.textStickGravity.Name = "textStickGravity";
-            this.textStickGravity.Size = new System.Drawing.Size(75, 23);
-            this.textStickGravity.TabIndex = 1;
-            this.textStickGravity.TextChanged += new System.EventHandler(this.textStickGravity_TextChanged);
+            this.textStickiness.Location = new System.Drawing.Point(157, 107);
+            this.textStickiness.Name = "textStickiness";
+            this.textStickiness.Size = new System.Drawing.Size(75, 23);
+            this.textStickiness.TabIndex = 1;
+            this.textStickiness.TextChanged += new System.EventHandler(this.textStickiness_TextChanged);
             // 
             // checkStickToScreen
             // 
@@ -210,8 +210,8 @@ namespace WinTest {
             this.Controls.Add(this.comboWindowType);
             this.Controls.Add(this.labelClientMoveKey);
             this.Controls.Add(this.comboClientMoveKey);
-            this.Controls.Add(this.labelStickGravity);
-            this.Controls.Add(this.textStickGravity);
+            this.Controls.Add(this.labelStickiness);
+            this.Controls.Add(this.textStickiness);
             this.Controls.Add(this.checkStickOnMove);
             this.Controls.Add(this.checkStickOnResize);
             this.Controls.Add(this.checkStickToOthers);
@@ -246,8 +246,8 @@ namespace WinTest {
             };
         }
 
-        private void textStickGravity_TextChanged(object sender, EventArgs e) {
-            stickyWindow.StickGravity = Int32.TryParse(textStickGravity.Text, out int gravity) ? gravity : 0;
+        private void textStickiness_TextChanged(object sender, EventArgs e) {
+            stickyWindow.Stickiness = Int32.TryParse(textStickiness.Text, out int gravity) ? gravity : 0;
         }
 
         private void checkStickToScreen_CheckedChanged(object sender, EventArgs e) {

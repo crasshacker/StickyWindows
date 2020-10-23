@@ -1,10 +1,10 @@
 
 # StickyWindows
 
-**Note:** This is a fork of this [StickyWindows GitHub repo](https://github.com/thoemmi/StickyWindows), which I've
-retargeted to .NET Core 3.1 and made a number of changes to, including significant (breaking) changes to the API.
-Because of the significance of the API changes, I plan to manage this as a separate project rather than making pull
-requests of the original StickyWindows project to incorporate these changes.
+**Note:** This is a fork of this [StickyWindows GitHub repo][1], which I've retargeted to .NET Core 3.1 and made a
+number of changes to, including significant (breaking) changes to the API.  Because of the significance of the API
+changes, I plan to manage this as a separate project rather than making pull requests of the original StickyWindows
+project to incorporate these changes.
 
 This library provides a means for a WinForms or WPF application to mark one or more of its application windows as
 sticky, so that they stick to other windows (of the same application instance) or to the edge of the screen when
@@ -13,8 +13,8 @@ to others (or the screen edge) when close, as well as with each window that shou
 sticky windows can be stuck to.  Various properties on the StickyWindow object can be set to control exactly how
 the window behaves with regard to stickiness:
 
-* WindowType        - Determines the overall sticky behavior of this window (see Sticky Window Types below).
-* StickGravity      - The distance (in pixels) the window will move to stick to an anchor window or screen edge.
+* WindowType        - Determines the overall sticky behavior of this window (see [Sticky Window Types][2] below).
+* Stickiness        - The distance (in pixels) the window will move to stick to an anchor window or screen edge.
 * StickOnMove       - If true, the window should jump to nearby windows or the screen edge when being moved.
 * StickOnResize     - If true, the window should jump to nearby windows or the screen edge when being resized.
 * StickToScreen     - If true, the window should stick to the edge of the screen when moved close to it.
@@ -24,7 +24,7 @@ the window behaves with regard to stickiness:
 * StickToCorners    - If true, the window should stick to corners of another window.
 * ClientAreaMoveKey - Specifies whether Ctrl or Shift keys allow dragging a window's from within its client area.
 
-The default WindowType is StickyWindowType.Sticky, the default StickGravity is 20, and the default ClientAreaMoveKey
+The default WindowType is StickyWindowType.Sticky, the default Stickiness is 20, and the default ClientAreaMoveKey
 is StickyWindow.ModifierKey.None; the default value for all other properties is true.
 
 ## Usage
@@ -72,4 +72,7 @@ is moved.  However, if window A is moved it does not carry window B with it, eve
 if it did, there would be no way to detach the windows from one another.  Thus, whether a Cohesive window behaves
 as an Anchor or as a Sticky window depends upon whether another window was stuck to it, or whether it was instead
 stuck to another window.
+
+[1]: <https://github.com/thoemmi/StickyWindows> "Sticky Windows"
+[2]: <#sticky-window-types> "Sticky Window Types"
 

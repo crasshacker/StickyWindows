@@ -19,7 +19,7 @@
         <wpf:StickyWindowBehavior
             WindowType        = "{Binding ElementName=CbWindowType,        Path=SelectedIndex, Converter={StaticResource IntegerToWindowTypeConverter}}"
             ClientAreaMoveKey = "{Binding ElementName=CbClientAreaMoveKey, Path=SelectedItem,  Converter={StaticResource StringToModifierKeyConverter}}"
-            StickGravity      = "{Binding ElementName=CbStickGravity,      Path=Text,          Converter={StaticResource StringToIntegerConverter}}"
+            Stickiness        = "{Binding ElementName=CbStickiness,        Path=Text,          Converter={StaticResource StringToIntegerConverter}}"
             StickOnMove       = "{Binding ElementName=CbStickOnMove,       Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
             StickOnResize     = "{Binding ElementName=CbStickOnResize,     Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
             StickToOther      = "{Binding ElementName=CbStickToOther,      Path=IsChecked,     Converter={StaticResource NullableBooleanToBooleanConverter}}"
@@ -57,7 +57,7 @@
             </ComboBox>
 
             <TextBlock Grid.Row="2" Grid.Column="0" Margin="5">Stickiness:</TextBlock>
-            <TextBox Grid.Row="2" Grid.Column="1" x:Name="CbStickGravity" Margin="0,5" Width="50">20</TextBox>
+            <TextBox Grid.Row="2" Grid.Column="1" x:Name="CbStickiness" Margin="0,5" Width="50">20</TextBox>
         </Grid>
 
         <CheckBox

@@ -118,7 +118,7 @@ namespace StickyWindows {
         /// the window's edge must be positioned in order to attach or detach from the edge of another window.
         /// The default value is 20;
         /// </summary>
-        public int StickGravity { get; set; } = 20;
+        public int Stickiness { get; set; } = 20;
 
         /// <summary>
         /// Allow the form to stick while resizing.
@@ -226,8 +226,8 @@ namespace StickyWindows {
         }
 
         /// <summary>
-        /// If the window is a Sticky (not Anchor) window and is within StickGravity's distance of an Anchor
-        /// window, stick the window to the anchor window just as if the window were being moved interactively.
+        /// If the window is a Sticky (not Anchor) window and is within Stickiness distance of an Anchor window,
+        /// stick the window to the anchor window just as if the window were being moved interactively.
         /// </summary>
         public void Stick()
         {
@@ -435,8 +435,8 @@ namespace StickyWindows {
 
             // CARE !!! We use "Width" and "Height" as Bottom & Right!! (C++ style)
             //formOffsetRect = new Rectangle ( stickGap + 1, stickGap + 1, 0, 0 );
-            _formOffsetRect.X = StickGravity + 1;
-            _formOffsetRect.Y = StickGravity + 1;
+            _formOffsetRect.X = Stickiness + 1;
+            _formOffsetRect.Y = Stickiness + 1;
             _formOffsetRect.Height = 0;
             _formOffsetRect.Width = 0;
 
@@ -470,16 +470,16 @@ namespace StickyWindows {
             }
 
             // Fix (clear) the values that were not updated to stick
-            if (_formOffsetRect.X == StickGravity + 1) {
+            if (_formOffsetRect.X == Stickiness + 1) {
                 _formOffsetRect.X = 0;
             }
-            if (_formOffsetRect.Width == StickGravity + 1) {
+            if (_formOffsetRect.Width == Stickiness + 1) {
                 _formOffsetRect.Width = 0;
             }
-            if (_formOffsetRect.Y == StickGravity + 1) {
+            if (_formOffsetRect.Y == Stickiness + 1) {
                 _formOffsetRect.Y = 0;
             }
-            if (_formOffsetRect.Height == StickGravity + 1) {
+            if (_formOffsetRect.Height == Stickiness + 1) {
                 _formOffsetRect.Height = 0;
             }
 
@@ -528,7 +528,7 @@ namespace StickyWindows {
         private bool Resize_Stick(Rectangle toRect, bool stickToInside = true, bool stickToOutside = true) {
             bool stuck = false;
 
-            if (_formRect.Right >= (toRect.Left - StickGravity) && _formRect.Left <= (toRect.Right + StickGravity)) {
+            if (_formRect.Right >= (toRect.Left - Stickiness) && _formRect.Left <= (toRect.Right + Stickiness)) {
                 if ((_resizeDirection & ResizeDir.Top) == ResizeDir.Top) {
                     if (Math.Abs(_formRect.Top - toRect.Bottom) <= Math.Abs(_formOffsetRect.Top) && stickToOutside) {
                         _formOffsetRect.Y = _formRect.Top - toRect.Bottom; // snap top to bottom
@@ -550,7 +550,7 @@ namespace StickyWindows {
                 }
             }
 
-            if (_formRect.Bottom >= (toRect.Top - StickGravity) && _formRect.Top <= (toRect.Bottom + StickGravity)) {
+            if (_formRect.Bottom >= (toRect.Top - Stickiness) && _formRect.Top <= (toRect.Bottom + Stickiness)) {
                 if ((_resizeDirection & ResizeDir.Right) == ResizeDir.Right) {
                     if (Math.Abs(_formRect.Right - toRect.Left) <= Math.Abs(_formOffsetRect.Right) && stickToOutside) {
                         _formOffsetRect.Width = toRect.Left - _formRect.Right; // Stick right to left
@@ -672,8 +672,8 @@ namespace StickyWindows {
                 _formRect.Location = p; // this is the new positon of the form
             }
 
-            _formOffsetPoint.X = StickGravity + 1; // (more than) maximum gaps
-            _formOffsetPoint.Y = StickGravity + 1;
+            _formOffsetPoint.X = Stickiness + 1; // (more than) maximum gaps
+            _formOffsetPoint.Y = Stickiness + 1;
 
             if (IsAnchor(this)) {
                 var distanceX = _formRect.Location.X - _originalForm.Bounds.X;
@@ -708,10 +708,10 @@ namespace StickyWindows {
                 }
             }
 
-            if (_formOffsetPoint.X == StickGravity + 1) {
+            if (_formOffsetPoint.X == Stickiness + 1) {
                 _formOffsetPoint.X = 0;
             }
-            if (_formOffsetPoint.Y == StickGravity + 1) {
+            if (_formOffsetPoint.Y == Stickiness + 1) {
                 _formOffsetPoint.Y = 0;
             }
 
@@ -739,7 +739,7 @@ namespace StickyWindows {
 
             // compare distance from toRect to formRect
             // and then with the found distances, compare the most closed position
-            if (_formRect.Bottom >= (toRect.Top - StickGravity) && _formRect.Top <= (toRect.Bottom + StickGravity)) {
+            if (_formRect.Bottom >= (toRect.Top - Stickiness) && _formRect.Top <= (toRect.Bottom + Stickiness)) {
                 if (stickToOutside) {
                     if ((Math.Abs(_formRect.Left - toRect.Right) <= Math.Abs(_formOffsetPoint.X))) {
                         // left 2 right
@@ -762,7 +762,7 @@ namespace StickyWindows {
                     }
                 }
             }
-            if (_formRect.Right >= (toRect.Left - StickGravity) && _formRect.Left <= (toRect.Right + StickGravity)) {
+            if (_formRect.Right >= (toRect.Left - Stickiness) && _formRect.Left <= (toRect.Right + Stickiness)) {
                 if (stickToOutside) {
                     if (Math.Abs(_formRect.Top - toRect.Bottom) <= Math.Abs(_formOffsetPoint.Y)) {
                         // Stick Top to Bottom

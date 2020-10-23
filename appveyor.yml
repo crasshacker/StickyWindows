@@ -1,0 +1,25 @@
+image: Visual Studio 2019
+configuration: Release
+
+install:
+  - choco install gitversion.portable -pre -y
+
+before_build:
+  - cmd: gitversion /l console /output buildserver
+
+build_script:
+  - cmd: msbuild src\StickyWindows.sln /t:restore
+  - cmd: msbuild src\StickyWindows.sln /t:restore /p:ExcludeRestorePackageImports=true
+  - cmd: msbuild src\StickyWindows.sln /t:build /p:Configuration=%CONFIGURATION% /p:GeneratePackageOnBuild=true
+
+# artifacts:
+#   - path: '**\*.nupkg'
+
+# deploy:
+#   - provider: NuGet
+#     api_key:
+#       secure: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#     on:
+#       branch:
+#         - master
+#         - develop

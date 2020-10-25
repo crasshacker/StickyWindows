@@ -19,7 +19,7 @@
         whether other "sticky" windows jump to it when moved close, whether it jumps to other "anchor" windows when it
         is moved close to them, and whether it remains attached to an anchor window when that anchor window is moved.
     </Description>
-    <PackageTags>Window Sticky WPF</PackageTags>
+    <PackageTags>Window Sticky Dock WPF</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

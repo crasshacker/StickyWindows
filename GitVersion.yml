@@ -1,6 +1,0 @@
-mode: ContinuousDeployment
-branches:
-  develop:
-    tag: unstable
-ignore:
-  sha: []
